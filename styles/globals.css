@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: 'Jost', sans-serif;
+}
+
+.sidebar-and-main{
+  display: flex;
+}
+
+.lg-title{
+  font-size: 2.6rem;
+}
+
+.italian-green{
+  color: #009344;
+}
+
+.italian-red{
+  color: #CF2734;
+}
+
+.italian-white{
+  color: white;
+}
+
+.sidebar-icon{
+  height: 31px;
+  width: auto;
+ 
+}
+
+#default-sidebar{
+  top: 93px;
+}
+
+.sidebar-items{
+  width: 15vw;
+  padding-left: 0rem;
+
+  
+}
+
+.sidebar-items span {
+ font-size: 1.4rem;   
+}
+
+.sidebar-items li{
+  padding: .75rem 2rem .75rem 1rem;
+  margin-left: 1rem;
+}
