@@ -1,50 +1,65 @@
-import React, { useContext, useState, useEffect, useRef } from 'react'
-import { auth, db } from '../firebase'
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
+import React, { useContext, useState, useEffect, useRef } from "react";
+import { auth, db } from "../firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+import { doc, getDoc, collection, setDoc, addDoc } from "firebase/firestore";
 
-const AuthContext = React.createContext()
+const AuthContext = React.createContext();
 
 export function useAuth() {
-    return useContext(AuthContext)
+  return useContext(AuthContext);
 }
 
 export function AuthProvider({ children }) {
-    const [currentUser, setCurrentUser] = useState(null)
-    const [loading, setLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
+  async function signup(email, password) {
+    const user = {
+        email: email,
+        // Add any other user details you want to store
+      };
+    await createUserWithEmailAndPassword(auth, email, password);
+    await addDoc(collection(db, "users"), user)
+      .then((docRef) => {
+        console.log("User document created with ID: ", docRef.id);
+      })
+      .catch((error) => {
+        console.error("Error adding user document: ", error);
+      });
+    return;
+  }
 
-    function signup(email, password) {
-        createUserWithEmailAndPassword(auth, email, password)
-        return
-    }
+  function login(email, password) {
+    return signInWithEmailAndPassword(auth, email, password);
+  }
 
-    function login(email, password) {
-        return signInWithEmailAndPassword(auth, email, password)
-    }
+  function logout() {
+    return signOut(auth);
+  }
 
-    function logout() {
-        return signOut(auth)
-    }
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setCurrentUser(user);
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, []);
 
+  const value = {
+    currentUser,
+    login,
+    signup,
+    logout,
+  };
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async user => {
-            setCurrentUser(user)
-            setLoading(false)
-        })
-        return unsubscribe
-    }, [])
-
-    const value = {
-        currentUser,
-        login,
-        signup,
-        logout,
-    }
-
-    return (
-        <AuthContext.Provider value={value}>
-            {!loading && children}
-        </AuthContext.Provider>
-    )
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 }

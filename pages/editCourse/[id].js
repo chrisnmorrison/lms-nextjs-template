@@ -15,12 +15,12 @@ export default function Page({ documentId, data }) {
         <h1 className='lg-title mb-5'>Edit Course</h1>
         <form id="editCourseForm">
             <div>
-            <label className="block text-white-700 text-lg font-bold mb-2" for="courseName">
+            <label className="block text-white-700 text-lg font-bold mb-2" htmlFor="courseName">
         CourseName
       </label>                <input className='shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline' type="text" id="courseName" name="courseName" required value={data.name} />
             </div>
             <div>
-                <label className="block text-white-700 text-lg font-bold mb-2" for="courseCode">Course Code:</label>
+                <label className="block text-white-700 text-lg font-bold mb-2" htmlFor="courseCode">Course Code:</label>
                 <input className='shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline' type="text" id="courseCode" name="courseCode" required />
             </div>
             <div>
