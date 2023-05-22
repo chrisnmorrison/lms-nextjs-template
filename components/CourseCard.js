@@ -3,7 +3,6 @@ import { Button } from '@mui/material'
 import Link from 'next/link'
 
 export default function CourseCard(props) {
-    console.log(props)
     const { children, edit, handleAddEdit, edittedValue, setEdittedValue, courseKey, handleEditCourse, handleDelete } = props
 
 

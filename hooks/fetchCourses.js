@@ -15,7 +15,6 @@ export default function useFetchCourses() {
           const coursesCollection = collection(db, 'courses');
           const coursesSnapshot = await getDocs(coursesCollection);
           const coursesData = coursesSnapshot.docs.map(doc => doc.data());
-          console.log(coursesData)
           setCourses(coursesData);
           setLoading(false);
         };
