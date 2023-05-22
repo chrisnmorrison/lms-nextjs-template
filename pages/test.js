@@ -12,7 +12,6 @@ import {
   getFirestore,
   collection,
   addDoc,
-  collection,
   getDocs,
   getDoc,
   updateDoc,
@@ -25,6 +24,7 @@ export default function Home() {
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [videoUpload, setVideoUpload] = useState(null);
+  const [dragActive, setDragActive] = React.useState(false);
 
   const router = useRouter();
 
@@ -36,8 +36,8 @@ export default function Home() {
       return;
     }
 
-    const storageRef = ref(storage, `videos/${imageUpload.name + v4()}`);
-    await uploadBytes(imageRef, imageUpload);
+    const storageRef = ref(storage, `videos/${v4() + videoUpload.name}`);
+    await uploadBytes(storageRef, videoUpload);
 
     const videoUrl = await getDownloadURL(storageRef);
 
@@ -49,7 +49,8 @@ export default function Home() {
     const firestore = getFirestore();
     const collectionRef = collection(firestore, "videoTest");
     try{
-       const newDoc = await addDoc(collectionRef, updatedDocument);
+       await addDoc(collectionRef, updatedDocument);
+       alert("Video uploaded successfully.");
     } catch (e) {
       alert("Error uploading video.");
     }
@@ -58,6 +59,9 @@ export default function Home() {
     setLoading(false);
     router.push("/courses");
   };
+
+  
+ 
 
   useEffect(() => {}, []);
 
@@ -71,7 +75,7 @@ export default function Home() {
       {!currentUser && <Login />}
       {currentUser && (
         <div className="w-full max-w-md mx-auto">
-          <form
+          <form 
             className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
             onSubmit={handleSubmit}
           >
@@ -92,6 +96,7 @@ export default function Home() {
             </div>
             <div className="mb-6">
               <input
+              
                 type="file"
                 name="file"
                 id="file"
@@ -104,25 +109,23 @@ export default function Home() {
                 htmlFor="file"
                 id="videoFile"
                 name="videoFile"
-                className="relative flex min-h-[200px] items-center justify-center rounded-md border border-dashed border-[#e0e0e0] p-12 text-center"
+                className="relative flex min-h-[100px] items-center justify-center rounded-md border border-dashed border-[#e0e0e0] p-4 text-center"
               >
                 <div>
-                  <span className="mb-2 block text-xl font-semibold text-[#07074D]">
-                    Drop files here
-                  </span>
-                  <span className="mb-2 block text-base font-medium text-[#6B7280]">
-                    Or
-                  </span>
+                
                   <span className="inline-flex rounded border border-[#e0e0e0] py-2 px-7 text-base font-medium text-[#07074D]">
                     Browse
                   </span>
+                  {videoUpload && 
+                  <p className="text-black">{videoUpload.name}</p>}
                 </div>
               </label>
             </div>
             <div className="flex items-center justify-center">
+              
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                type="button"
+                type="submit"
               >
                 Upload
               </button>
