@@ -1,37 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import CourseCard from "./CourseCard";
+import UserCard from "./UserCard";
 import {
   doc,
   setDoc,
   deleteField,
-  addDoc,
-  collection,
+
 } from "firebase/firestore";
 import { db } from "../firebase";
-import useFetchCourses from "../hooks/fetchCourses";
+import useFetchUsers from "../hooks/fetchUsers";
 import { Link } from "@mui/material";
 import { Button } from "@mui/material";
 
 export default function UserDashboard() {
   const { userInfo, currentUser } = useAuth();
   const [edit, setEdit] = useState(null);
-  const [course, setCourse] = useState([]);
   const [edittedValue, setEdittedValue] = useState("");
 
-  const { courses, setCourses, loading, error } = useFetchCourses();
+  const { users, setUsers, loading, error } = useFetchUsers();
 
-  async function handleEditCourse(i) {
+  async function handleEditUser(i) {
     if (!edittedValue) {
       return;
     }
     const newKey = edit;
-    setCourses({ ...courses, [newKey]: edittedValue });
-    const userRef = doc(db, "courses", currentUser.uid);
+    setUsers({ ...users, [newKey]: edittedValue });
+    const userRef = doc(db, "users", currentUser.uid);
     await setDoc(
       userRef,
       {
-        courses: {
+        users: {
           [newKey]: edittedValue,
         },
       },
@@ -41,26 +39,26 @@ export default function UserDashboard() {
     setEdittedValue("");
   }
 
-  function handleAddEdit(courseKey) {
+  function handleAddEdit(userKey) {
     return () => {
-      console.log(courses[courseKey]);
-      setEdit(courseKey);
-      setEdittedValue(courses[courseKey]);
+      console.log(users[userKey]);
+      setEdit(userKey);
+      setEdittedValue(users[userKey]);
     };
   }
 
-  function handleDelete(courseKey) {
+  function handleDelete(userKey) {
     return async () => {
-      const tempObj = { ...courses };
-      delete tempObj[courseKey];
+      const tempObj = { ...users };
+      delete tempObj[userKey];
 
-      setCourses(tempObj);
-      const userRef = doc(db, "courses", currentUser.uid);
+      setUsers(tempObj);
+      const userRef = doc(db, "users", currentUser.uid);
       await setDoc(
         userRef,
         {
-          courses: {
-            [courseKey]: deleteField(),
+          users: {
+            [userKey]: deleteField(),
           },
         },
         { merge: true }
@@ -71,50 +69,49 @@ export default function UserDashboard() {
   return (
     <div className="w-full max-w-[65ch] text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
       <div className="flex items-stretch">
-        <h1 className="text-3xl">Course List</h1>
+        <h1 className="text-3xl">User List</h1>
       </div>
       {loading && (
         <div className="flex-1 grid place-items-center">
           <i className="fa-solid fa-spinner animate-spin text-6xl"></i>
         </div>
       )}
-      <div className="current-courses">
+      <div className="current-users">
         {!loading && (
           <>
-            {courses.map((course, i) => {
+            {users.map((user, i) => {
               return (
-                <CourseCard
-                  handleEditCourse={handleEditCourse(i)}
+                <UserCard
+                  handleEditUser={handleEditUser(i)}
                   key={i}
                   handleAddEdit={handleAddEdit}
                   edit={edit}
-                  courseKey={course}
+                  userKey={user}
                   edittedValue={edittedValue}
                   setEdittedValue={setEdittedValue}
                   handleDelete={handleDelete}
                 >
                   <h2 style={{ fontSize: "200%", marginBottom: ".5rem" }}>
-                    {course.name}
+                    {user.name}
                   </h2>
-                  <p>{course.code}</p>
-                </CourseCard>
+                  <p>{user.email}</p>
+                </UserCard>
               );
             })}
             <div className="mt-5">
               <Link
-                href="/AddCourse"
+                href="/AddUser"
                 underline="hover"
                 style={{ fontSize: "200%", marginBottom: ".5rem" }}
               >
                 <Button size="large" variant="outlined">
-                  Add New Course
+                  Add New User
                 </Button>
               </Link>
             </div>
           </>
         )}
       </div>
-      {/* {!addCourse && <button onClick={() => setAddCourse(true)} className='text-cyan-300 border border-solid border-cyan-300 py-2 text-center uppercase text-lg duration-300 hover:opacity-30'>ADD COURSE</button>} */}
     </div>
   );
 }

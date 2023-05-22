@@ -15,13 +15,6 @@ export default function UserDashboard() {
 
 
 
-    //console.log(courses)
-
-    // useEffect(() => {
-    //     if (!userInfo || Object.keys(userInfo).length === 0) {
-    //         setAddCourse(true)
-    //     }
-    // }, [userInfo])
 
     async function handleAddCourse() {
         if (!course) { return }
