@@ -54,6 +54,6 @@ export default function Sidebar() {
 const Styles = styled.div`
 
 border-right: 1px solid white;
-width: 15vw;
+width: 18vw;
 height: 100vw;
 `

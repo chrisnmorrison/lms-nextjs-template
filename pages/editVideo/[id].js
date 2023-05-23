@@ -10,6 +10,8 @@ import {
   getDocs,
   getDoc,
   updateDoc,
+  query,
+  where
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import useFetchCourses from "../../hooks/fetchCourses";
@@ -114,12 +116,12 @@ export const getServerSideProps = async (context) => {
   const { id } = context.query;
   try {
     const videosCollection = collection(db, 'videoTest');
-    const queryRef = query(videosCollection, where('code', '==', id));
-    const querySnapshot = await getDocs(queryRef);
+    const documentRef = doc(collection(db, "videoTest"), id);
+        const document = await getDoc(documentRef);
 
     let data = null;
-    if (!querySnapshot.empty) {
-      const doc = querySnapshot.docs[0];
+    if (!document.empty) {
+      const doc = document;
       data = doc.data();
     }
 
