@@ -1,7 +1,7 @@
 import React from 'react'
 import { styled } from 'styled-components'
 import Link from 'next/link'
-import { FcHome, FcNews, FcConferenceCall, FcAnswers } from "react-icons/fc";
+import { FcHome, FcNews, FcConferenceCall, FcAnswers, FcClapperboard } from "react-icons/fc";
 
 export default function Sidebar() {
 
@@ -26,6 +26,13 @@ export default function Sidebar() {
                  <Link href="/users" >
                    <div  className='inline-flex'><FcConferenceCall className='sidebar-icon'/>
                     <span className="inline-flex-1 ml-3 whitespace-nowrap">Manage Users</span></div>
+                    
+                 </Link>
+              </li>
+              <li className="cursor-pointer inline-flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                 <Link href="/videos" >
+                   <div  className='inline-flex'><FcClapperboard className='sidebar-icon'/>
+                    <span className="inline-flex-1 ml-3 whitespace-nowrap">Videos</span></div>
                     
                  </Link>
               </li>
