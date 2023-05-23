@@ -7,7 +7,6 @@ export default function VideoCard(props) {
 
 
 
-
     return (
         <div className='p-2 relative sm:p-3 border flex items-stretch border-white border-solid '>
 

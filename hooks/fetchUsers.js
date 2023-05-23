@@ -14,7 +14,10 @@ export default function useFetchUsers() {
         const fetchData = async () => {
           const usersCollection = collection(db, 'users');
           const usersSnapshot = await getDocs(usersCollection);
-          const usersData = usersSnapshot.docs.map(doc => doc.data());
+          const usersData = usersSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
           setUsers(usersData);
           setLoading(false);
         };

@@ -24,7 +24,6 @@ export default function useFetchVideos() {
         id: doc.id,
         ...doc.data(),
       }));
-      console.log(videosData);
       setVideos(videosData);
       setLoading(false);
     };

@@ -3,9 +3,7 @@ import { Button } from '@mui/material'
 import Link from 'next/link'
 
 export default function UserCard(props) {
-    const { children, edit, edittedValue, setEdittedValue, userKey, } = props
-
-
+    const { children, edit, edittedValue, setEdittedValue, userKey } = props
 
 
     return (
@@ -17,7 +15,7 @@ export default function UserCard(props) {
                 )}
                 {/* {children} */}
             </div>
-           <Link href={`editUser/${userKey.code}`}><Button variant="contained">Edit User</Button></Link>
+           <Link href={`editUser/${userKey.id}`}><Button variant="contained">Edit User</Button></Link>
         </div>
     )
 }
