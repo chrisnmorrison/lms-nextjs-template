@@ -20,9 +20,17 @@ yarn dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+Lastly,
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+Register / Sign in to access the dashboard.
+
+You will need to register for an account and sign in to access any of the pages. If you can access any pages without signing in, we need to fix that!
+
+This web app uses Firebase auth, so passwords are not stored in Firestore. By default, no data is stored in Firestore (at least not data we can access), and I have set up a `users` collection to store user data.
+
+## Issues
+
+I'm going to try managing all To-Do's in Github issues. If you want to work on an issue, create a branch and assign yourself to the issue! 
 
 ## Learn More
 

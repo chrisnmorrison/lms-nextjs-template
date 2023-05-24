@@ -5,6 +5,7 @@ import {
   doc,
   setDoc,
   deleteField,
+  getDoc,
   addDoc,
   collection,
 } from "firebase/firestore";
@@ -48,23 +49,30 @@ export default function UserDashboard() {
     };
   }
 
-  function handleDelete(courseKey) {
-    return async () => {
-      const tempObj = { ...courses };
-      delete tempObj[courseKey];
-
-      setCourses(tempObj);
-      const userRef = doc(db, "courses", currentUser.uid);
-      await setDoc(
-        userRef,
-        {
-          courses: {
-            [courseKey]: deleteField(),
-          },
-        },
-        { merge: true }
-      );
-    };
+  const handleDelete = async (courseKey) => {
+    console.log(courseKey)
+    try {
+      // Get a reference to the document to be deleted
+      const courseDocRef = doc(db, 'courses', courseKey);
+  
+      // Get the data of the document before deleting it
+      const courseSnapshot = await getDoc(courseDocRef);
+      const courseData = courseSnapshot.data();
+  
+      // Delete the document from the current collection
+      await deleteDoc(courseDocRef);
+  
+      // Add the document to the archivedCourses collection
+      const archivedCoursesCollection = collection(db, 'archivedCourses');
+      await addDoc(archivedCoursesCollection, courseData);
+  
+      // Perform any additional actions after successful deletion
+      console.log("Course moved to archives")
+  
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      // Handle error and display an error message to the user
+    }
   }
 
   return (
@@ -86,6 +94,7 @@ export default function UserDashboard() {
                   handleEditCourse={handleEditCourse(i)}
                   key={i}
                   handleAddEdit={handleAddEdit}
+                  onDelete={handleDelete}
                   edit={edit}
                   courseKey={course}
                   edittedValue={edittedValue}
@@ -109,6 +118,7 @@ export default function UserDashboard() {
                   Add New Course
                 </Button>
               </Link>
+              
             </div>
           </>
         )}
