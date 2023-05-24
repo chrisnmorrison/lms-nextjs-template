@@ -15,9 +15,11 @@ import { db } from "../../firebase";
 import useFetchCourses from "../../hooks/fetchCourses";
 import { Button } from "@mui/material";
 
-export default function Page({ documentId, data }) {
+export default function Page() {
+  const [documentId, setDocumentId] = useState(null);
+  const [data, setData] = useState(null);
   const [course, setCourse] = useState([]);
-  const { name, code } = document;
+  const { name, code } = data || {};
 
   const router = useRouter();
 
@@ -44,6 +46,30 @@ export default function Page({ documentId, data }) {
     router.push("/courses");
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const { id } = router.query;
+      try {
+        const coursesCollection = collection(db, "courses");
+        const querySnapshot = await getDocs(coursesCollection);
+
+        querySnapshot.forEach((doc) => {
+          const docData = doc.data();
+
+          if (docData.code === id) {
+            setDocumentId(doc.id);
+            setData(docData);
+          }
+        });
+      } catch (error) {
+        console.error("Error retrieving document ID:", error);
+        throw error;
+      }
+    };
+
+    fetchData();
+  }, [router.query]);
+
   return (
     <>
       {/* <p>Course Code: {router.query.id}</p> */}
@@ -62,7 +88,7 @@ export default function Page({ documentId, data }) {
             id="courseName"
             name="courseName"
             required
-            defaultValue={data.name}
+            defaultValue={name}
           />
         </div>
         <div>
@@ -78,7 +104,7 @@ export default function Page({ documentId, data }) {
             id="courseCode"
             name="courseCode"
             required
-            defaultValue={data.code}
+            defaultValue={code}
           />
         </div>
         <div>
@@ -86,7 +112,7 @@ export default function Page({ documentId, data }) {
             className="block text-white-700 text-lg font-bold mb-2"
             htmlFor="courseCode"
           >
-            Course Code:
+            Course Description:
           </label>
           <textarea
             rows={5}
@@ -95,7 +121,7 @@ export default function Page({ documentId, data }) {
             id="courseDescription"
             name="courseDescription"
             required
-            defaultValue={data.description}
+            defaultValue={data?.description}
           />
         </div>
         <div className="mt-5">
@@ -107,33 +133,3 @@ export default function Page({ documentId, data }) {
     </>
   );
 }
-
-export const getServerSideProps = async (context) => {
-  const { id } = context.query;
-  try {
-    const coursesCollection = collection(db, "courses");
-    const querySnapshot = await getDocs(coursesCollection);
-    let documentId = null;
-    let document = null;
-    let data = null;
-
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-
-      if (data.code === id) {
-        documentId = doc.id;
-        document = doc;
-      }
-    });
-    const docRef = doc(db, "courses", documentId);
-
-    const docSnapshot = await getDoc(docRef);
-    if (docSnapshot.exists()) {
-      data = docSnapshot.data();
-    }
-    return { props: { documentId, data } };
-  } catch (error) {
-    console.error("Error retrieving document ID:", error);
-    throw error;
-  }
-};

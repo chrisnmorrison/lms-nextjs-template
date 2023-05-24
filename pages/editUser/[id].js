@@ -92,10 +92,10 @@ export default function Page({ data }) {
 }
 
 export const getServerSideProps = async (context) => {
-  const { id } = context.query;
+  const { id } = context.params;
   try {
     const usersCollection = collection(db, 'users');
-    const documentRef = doc(collection(db, "users"), id);
+    const documentRef = doc(usersCollection, id);
         const document = await getDoc(documentRef);
 
     let data = null;

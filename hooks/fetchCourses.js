@@ -1,26 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { doc, getDoc, getDocs, collection, getFirestore } from 'firebase/firestore'
 import { useAuth } from '../context/AuthContext'
 import { db } from '../firebase'
+import { collection, getDocs } from 'firebase/firestore'
+import useSWR from 'swr'
+
+const fetchCourses = async () => {
+  const coursesCollection = collection(db, 'courses')
+  const coursesSnapshot = await getDocs(coursesCollection)
+  const coursesData = coursesSnapshot.docs.map((doc) => doc.data())
+  return coursesData
+}
 
 export default function useFetchCourses() {
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
-    const [courses, setCourses] = useState([])
+  const { currentUser } = useAuth()
+  const { data: courses, error } = useSWR(currentUser ? 'courses' : null, fetchCourses)
 
-    const { currentUser } = useAuth()
-
-    useEffect(() => {
-        const fetchData = async () => {
-          const coursesCollection = collection(db, 'courses');
-          const coursesSnapshot = await getDocs(coursesCollection);
-          const coursesData = coursesSnapshot.docs.map(doc => doc.data());
-          setCourses(coursesData);
-          setLoading(false);
-        };
-      
-        fetchData();
-    }, [])
-
-    return { loading, error, courses, setCourses }
+  return {
+    courses: courses || [],
+    isLoading: !error && !courses,
+    isError: error,
+  }
 }

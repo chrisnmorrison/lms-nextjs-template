@@ -19,8 +19,7 @@ export default function UserDashboard() {
   const [course, setCourse] = useState([]);
   const [edittedValue, setEdittedValue] = useState("");
 
-  const { courses, setCourses, loading, error } = useFetchCourses();
-
+  const { courses, isLoading, isError } = useFetchCourses()
   async function handleEditCourse(i) {
     if (!edittedValue) {
       return;
@@ -73,13 +72,13 @@ export default function UserDashboard() {
       <div className="flex items-stretch">
         <h1 className="text-3xl">Course List</h1>
       </div>
-      {loading && (
+      {isLoading && (
         <div className="flex-1 grid place-items-center">
           <i className="fa-solid fa-spinner animate-spin text-6xl"></i>
         </div>
       )}
       <div className="current-courses">
-        {!loading && (
+        {!isLoading && (
           <>
             {courses.map((course, i) => {
               return (
