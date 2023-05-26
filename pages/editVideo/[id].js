@@ -17,9 +17,11 @@ import { db } from "../../firebase";
 import useFetchCourses from "../../hooks/fetchCourses";
 import { Button } from "@mui/material";
 
-export default function Page({ data }) {
+//Please check comments for editUser
+export default function Page() {
   const [video, setVideo] = useState([]);
   const { title, videoUrl } = document;
+  const [data, setData] = useState(null);
 
   const router = useRouter();
   const { id } = router.query;
@@ -52,6 +54,29 @@ export default function Page({ data }) {
   const addVideoTimestamp = () => {
     setVideo([...video, ""]);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const videosCollection = collection(db, 'videoTest');
+        const documentRef = doc(videosCollection, id);
+        const document = await getDoc(documentRef);
+
+        let newData = null;
+        if (!document.empty) {
+          const docData = document.data();
+          newData = docData;
+        }
+
+        setData(newData);
+      } catch (error) {
+        console.error('Error retrieving document ID:', error);
+        throw error;
+      }
+    };
+
+    fetchData();
+  }, [id]);
 
   return (
     <>
@@ -112,22 +137,4 @@ export default function Page({ data }) {
   );
 }
 
-export const getServerSideProps = async (context) => {
-  const { id } = context.query;
-  try {
-    const videosCollection = collection(db, 'videoTest');
-    const documentRef = doc(collection(db, "videoTest"), id);
-        const document = await getDoc(documentRef);
 
-    let data = null;
-    if (!document.empty) {
-      const doc = document;
-      data = doc.data();
-    }
-
-    return { props: { data } };
-  } catch (error) {
-    console.error('Error retrieving document ID:', error);
-    throw error;
-  }
-};
