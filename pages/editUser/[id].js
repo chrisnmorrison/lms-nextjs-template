@@ -11,14 +11,18 @@ import {
   getDoc,
   updateDoc,
   query,
-  where
+  where,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import useFetchCourses from "../../hooks/fetchCourses";
 import { Button } from "@mui/material";
 
-export default function Page({ data }) {
+// Before it was 'export default function Page({ data })' but then when getServerSideProps got converted into useEffect, the argument for the function started throwing an error,
+//Parsing error: Identifier 'data' has already been declared.
+//Since we are using a state of data in conjunction with useEffect, it made sense to get rid of data being rendered as an argument for the function 
+export default function Page() {
   const [user, setUser] = useState([]);
+  const [data, setData] = useState(null);
   const { title, userUrl } = document;
 
   const router = useRouter();
@@ -27,18 +31,18 @@ export default function Page({ data }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-  const updatedUserTimestamps = [];
-  for (let i = 0; i < user.length; i++) {
-    const timestamp = event.target[`userTimestamp${i}`].value;
-    updatedUserTimestamps.push(timestamp);
-  }
+    const updatedUserTimestamps = [];
+    for (let i = 0; i < user.length; i++) {
+      const timestamp = event.target[`userTimestamp${i}`].value;
+      updatedUserTimestamps.push(timestamp);
+    }
 
-  const updatedDocument = {
-    name: event.target.userName.value,
-    code: event.target.userCode.value,
-    description: event.target.userDescription.value,
-    userTimestamps: updatedUserTimestamps,
-  };
+    const updatedDocument = {
+      name: event.target.userName.value,
+      code: event.target.userCode.value,
+      description: event.target.userDescription.value,
+      userTimestamps: updatedUserTimestamps,
+    };
 
     const docToUpdate = doc(db, "userTest", id);
     await updateDoc(docToUpdate, updatedDocument);
@@ -53,13 +57,40 @@ export default function Page({ data }) {
     setUser([...user, ""]);
   };
 
+  // Here getServerSideProps converted into useEffect
+  //Also moved it to inside the function
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const usersCollection = collection(db, "users");
+        const documentRef = doc(usersCollection, id);
+        const document = await getDoc(documentRef);
+
+        let newData = null;
+        if (!document.empty) {
+          const docData = document.data();
+          newData = docData;
+        }
+
+        setData(newData);
+      } catch (error) {
+        console.error("Error retrieving document ID:", error);
+        throw error;
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
   return (
     <>
       {/* <p>Course Code: {router.query.id}</p> */}
       <h1 className="lg-title mb-5">Edit User</h1>
       <form id="editCourseForm" onSubmit={handleSubmit}>
         <div>
-          <p>For user: <strong>{data.email}</strong></p>
+          <p>
+            For user: <strong>{data.email}</strong>
+          </p>
           <label
             className="block text-white-700 text-lg font-bold mb-2"
             htmlFor="userName"
@@ -75,12 +106,8 @@ export default function Page({ data }) {
             defaultValue={data.email}
           />
         </div>
-       
-        <div>
-        
 
- 
-        </div>
+        <div></div>
         <div className="mt-5">
           <Button variant="contained" type="submit">
             Submit
@@ -90,23 +117,3 @@ export default function Page({ data }) {
     </>
   );
 }
-
-export const getServerSideProps = async (context) => {
-  const { id } = context.params;
-  try {
-    const usersCollection = collection(db, 'users');
-    const documentRef = doc(usersCollection, id);
-        const document = await getDoc(documentRef);
-
-    let data = null;
-    if (!document.empty) {
-      const doc = document;
-      data = doc.data();
-    }
-
-    return { props: { data } };
-  } catch (error) {
-    console.error('Error retrieving document ID:', error);
-    throw error;
-  }
-};
