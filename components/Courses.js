@@ -20,7 +20,7 @@ export default function UserDashboard() {
   const [course, setCourse] = useState([]);
   const [edittedValue, setEdittedValue] = useState("");
 
-  const { courses, isLoading, isError } = useFetchCourses()
+  const { courses, isLoading, isError } = useFetchCourses();
   async function handleEditCourse(i) {
     if (!edittedValue) {
       return;
@@ -50,34 +50,33 @@ export default function UserDashboard() {
   }
 
   const handleDelete = async (courseKey) => {
-    console.log(courseKey)
+    console.log(courseKey);
     try {
       // Get a reference to the document to be deleted
-      const courseDocRef = doc(db, 'courses', courseKey);
-  
+      const courseDocRef = doc(db, "courses", courseKey);
+
       // Get the data of the document before deleting it
       const courseSnapshot = await getDoc(courseDocRef);
       const courseData = courseSnapshot.data();
-  
+
       // Delete the document from the current collection
       await deleteDoc(courseDocRef);
-  
+
       // Add the document to the archivedCourses collection
-      const archivedCoursesCollection = collection(db, 'archivedCourses');
+      const archivedCoursesCollection = collection(db, "archivedCourses");
       await addDoc(archivedCoursesCollection, courseData);
-  
+
       // Perform any additional actions after successful deletion
-      console.log("Course moved to archives")
-  
+      console.log("Course moved to archives");
     } catch (error) {
-      console.error('Error deleting course:', error);
+      console.error("Error deleting course:", error);
       // Handle error and display an error message to the user
     }
-  }
+  };
 
   return (
-    <div className="w-full max-w-[65ch] text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
-      <div className="flex items-stretch">
+    <div className="w-full max-w-[56rem] text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
+      <div className="flex items-center">
         <h1 className="text-3xl">Course List</h1>
       </div>
       {isLoading && (
@@ -118,7 +117,6 @@ export default function UserDashboard() {
                   Add New Course
                 </Button>
               </Link>
-              
             </div>
           </>
         )}
