@@ -34,7 +34,21 @@ export default function Page() {
     setSelectedDropdown(event.target.value);
   };
 
-
+  const handleSubmit = async (formData) => {
+    try {
+      // Add your logic here to handle form submission
+      // For example, you can add the form data to the Firebase Firestore
+      const { type } = formData;
+      const docRef = await addDoc(collection(db, "courseContent"), formData);
+      setCourse("");
+  
+      console.log("Form submitted successfully");
+      // Optionally, you can redirect to a different page or perform other actions after form submission
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      // Handle the error accordingly
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,14 +81,14 @@ export default function Page() {
   let formComponent = null;
 
   switch (selectedDropdown) {
-    case 'Text':
-      formComponent = <TextForm onSubmit={handleSubmit} documentId={documentId} courseCode={course} />;
+    case 'text':
+      formComponent = <TextForm onSubmit={handleSubmit} documentId={documentId} courseCode={course} type="Text" />;
       break;
-    case 'Video':
-      formComponent = <VideoForm onSubmit={handleSubmit} documentId={documentId} courseCode={course} />;
+    case 'video':
+      formComponent = <VideoForm onSubmit={handleSubmit} documentId={documentId} courseCode={course} type="Video" />;
       break;
-    case 'Quiz':
-      formComponent = <QuizForm onSubmit={handleSubmit} documentId={documentId} courseCode={course} />;
+    case 'quiz':
+      formComponent = <QuizForm onSubmit={handleSubmit} documentId={documentId} courseCode={course} type="Quiz" />;
       break;
     default:
       formComponent = null;
@@ -87,20 +101,15 @@ export default function Page() {
       <h1>Adding New Content for Course: <strong>{course}</strong></h1>
       <div className="">
         <label htmlFor="options">Select an option:</label>
-      <select id="options" value={selectedDropdown} onChange={handleDropdown} className="px-1 py-2 ml-2">
-        <option value="" disabled selected>-- Select an Option --</option>
-        <option value="Text">Text</option>
-        <option value="Video">Video</option>
-        <option value="Quiz">Quiz</option>
+      <select id="options" defaultValue={selectedDropdown} onChange={handleDropdown} className="px-1 py-2 ml-2">
+        <option value="" disabled >-- Select an Option --</option>
+        <option value="text">Text</option>
+        <option value="video">Video</option>
+        <option value="quiz">Quiz</option>
       </select>
       <p>Selected option: {selectedDropdown}</p>
        
-       
-        <ul>
-          {courseContent.map((content) => (
-            <li key={content.id}>{/* Render your course content data */}</li>
-          ))}
-        </ul>
+   
         {formComponent}
       
       </div>

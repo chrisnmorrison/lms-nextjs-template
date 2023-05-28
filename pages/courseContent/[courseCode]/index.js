@@ -78,23 +78,94 @@ export default function Page() {
     fetchData();
   }, [router.query]);
 
+  function handleAddEdit(courseKey) {
+    return () => {
+      console.log(courses[courseKey]);
+      setEdit(courseKey);
+      setEdittedValue(courses[courseKey]);
+    };
+  }
+
+  const handleDelete = async (courseKey) => {
+    console.log(courseKey);
+    try {
+      // Get a reference to the document to be deleted
+      const courseDocRef = doc(db, "courses", courseKey);
+
+      // Get the data of the document before deleting it
+      const courseSnapshot = await getDoc(courseDocRef);
+      const courseData = courseSnapshot.data();
+
+      // Delete the document from the current collection
+      await deleteDoc(courseDocRef);
+
+      // Add the document to the archivedCourses collection
+      const archivedCoursesCollection = collection(db, "archivedCourses");
+      await addDoc(archivedCoursesCollection, courseData);
+
+      // Perform any additional actions after successful deletion
+      console.log("Course moved to archives");
+    } catch (error) {
+      console.error("Error deleting course:", error);
+      // Handle error and display an error message to the user
+    }
+  };
+
   return (
     <>
       {/* <p>Course Code: {router.query.id}</p> */}
       <h1>Course ID: {course}</h1>
-      <div className="flex">
-        <ul>
-          {courseContent.map((content) => (
-           
-            <li key={content.id}>{JSON.stringify(content)}</li>
-          ))}
-        </ul>
+      <div className="">
+       <table className="table-dark">
+  <thead>
+    <tr>
+      <th>Content Order</th>
+      <th>Title</th>
+      <th>Type</th>
+      <th>Opens At</th>
+      <th>Due at</th>
+      <th>Closes at</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {courseContent.map((content) => (
+      <tr key={content.id}>
+        <td>{content.contentOrder}</td>
+        <td>{content.title}</td>
+        <td>{content.type}</td>
+        <td>{content.open}</td>
+        <td>{content.due}</td>
+        <td>{content.close}</td>
+        <td className="flex">
+          <Link href={`editCourse/${content.courseCode}`}>
+            <Button sx={{ mr: 0.5 }} variant="contained">
+              Edit Content
+            </Button>
+          </Link>
+          <Link href="">
+            <Button
+              sx={{ ml: 0.5 }}
+              color="error"
+              variant="contained"
+              onClick={handleDelete}
+            >
+              Delete Course
+            </Button>
+          </Link>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
 
         <div className="mt-5">
-          <Link href={`/addCourseContent/${course}`}> <Button variant="contained" type="submit">
-            Add New Content
-          </Button></Link>
-         
+          <Link href={`/addCourseContent/${course}`}>
+            {" "}
+            <Button variant="contained" type="submit">
+              Add New Content
+            </Button>
+          </Link>
         </div>
       </div>
     </>

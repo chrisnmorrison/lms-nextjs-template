@@ -11,7 +11,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
 
-const AddCourseTextContent = ({ onSubmit, documentId, courseCode }) => {
+const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
   console.log(courseCode)
   const [formData, setFormData] = useState({});
   const [textContent, setTextContent] = useState("");
@@ -22,6 +22,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode }) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       courseCode: courseCode,
+      type: "text"
     }));
     console.log(formData)
   }, []);
@@ -48,11 +49,12 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode }) => {
   };
 
   const handleFormSubmit = (event) => {
-    console.log("In form data.")
+    console.log(type)
     event.preventDefault();
     setFormData((prevFormData) => ({
       ...prevFormData,
       textContent: textContent,
+    
     }));
     const jsonData = JSON.stringify(formData);
 

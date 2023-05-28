@@ -62,3 +62,96 @@ select{
 label{
   margin-top: 1rem;
 }
+
+/* Table styles for dark mode */
+.table-dark {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-dark th,
+.table-dark td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #555;
+  color: #fff;
+}
+
+/* Header styles */
+.table-dark thead th {
+  background-color: #333;
+  font-weight: bold;
+}
+
+/* Alternate row styles */
+.table-dark tbody tr:nth-child(even) {
+  background-color: #444;
+}
+
+/* Hover effect */
+.table-dark tbody tr:hover {
+  background-color: #555;
+  cursor: pointer;
+}
+
+/* Example of striped rows */
+.table-dark-striped tbody tr:nth-child(odd) {
+  background-color: #444;
+}
+
+/* Example of centered text in cells */
+.table-dark-centered th,
+.table-dark-centered td {
+  text-align: center;
+}
+
+/* Example of a bordered table */
+.table-dark-bordered th,
+.table-dark-bordered td {
+  border: 1px solid #555;
+}
+
+/* Example of a table with rounded corners */
+.table-dark-rounded {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Example of a responsive table */
+.table-dark-responsive {
+  overflow-x: auto;
+}
+
+/* Example of table header with sorting icons */
+.table-dark-sortable th {
+  position: relative;
+}
+
+.table-dark-sortable th::after {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 5px;
+  vertical-align: middle;
+  border-top: 4px solid;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+}
+
+.table-dark-sortable.asc::after {
+  border-top-color: #fff;
+}
+
+.table-dark-sortable.desc::after {
+  border-top-color: #fff;
+  transform: rotate(180deg);
+}
+
+/* Example of a table with fixed header */
+.table-dark-fixed-header thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #333;
+}
