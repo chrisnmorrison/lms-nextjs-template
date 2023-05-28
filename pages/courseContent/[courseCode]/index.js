@@ -7,6 +7,7 @@ import {
   deleteField,
   addDoc,
   collection,
+  deleteDoc,
   getDocs,
   getDoc,
   updateDoc,
@@ -27,28 +28,7 @@ export default function Page() {
 
   const router = useRouter();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
 
-    // Handle the form submission logic here
-    // You can access the form field values using event.target
-
-    // Example code:
-
-    const updatedDocument = {
-      name: event.target.courseName.value,
-      code: event.target.courseCode.value,
-      description: event.target.courseDescription.value,
-    };
-
-    const docToUpdate = doc(db, "courses", documentId);
-    await updateDoc(docToUpdate, updatedDocument);
-
-    // Do something with the updated form values
-    console.log(updatedDocument);
-
-    router.push("/courses");
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -65,9 +45,8 @@ export default function Page() {
 
         const courseContentData = [];
         querySnapshot.forEach((doc) => {
-          courseContentData.push(doc.data());
-        });
-
+          courseContentData.push({ id: doc.id, ...doc.data() });        });
+          courseContentData.sort((a, b) => a.contentOrder - b.contentOrder);
         setCourseContent(courseContentData);
       } catch (error) {
         console.error("Error retrieving course content:", error);
@@ -78,35 +57,30 @@ export default function Page() {
     fetchData();
   }, [router.query]);
 
-  function handleAddEdit(courseKey) {
-    return () => {
-      console.log(courses[courseKey]);
-      setEdit(courseKey);
-      setEdittedValue(courses[courseKey]);
-    };
-  }
 
-  const handleDelete = async (courseKey) => {
-    console.log(courseKey);
+
+  const handleDelete = async (contentId) => {
     try {
       // Get a reference to the document to be deleted
-      const courseDocRef = doc(db, "courses", courseKey);
+      const courseDocRef = doc(db, "courseContent", contentId);
 
       // Get the data of the document before deleting it
       const courseSnapshot = await getDoc(courseDocRef);
       const courseData = courseSnapshot.data();
 
+// Add the document to the archivedCourses collection
+const archivedContentCollection = collection(db, "archivedCourseContent");
+await addDoc(archivedContentCollection, courseData);
+
       // Delete the document from the current collection
       await deleteDoc(courseDocRef);
 
-      // Add the document to the archivedCourses collection
-      const archivedCoursesCollection = collection(db, "archivedCourses");
-      await addDoc(archivedCoursesCollection, courseData);
+      
 
       // Perform any additional actions after successful deletion
-      console.log("Course moved to archives");
+      console.log("Content moved to archives");
     } catch (error) {
-      console.error("Error deleting course:", error);
+      console.error("Error deleting content:", error);
       // Handle error and display an error message to the user
     }
   };
@@ -130,7 +104,8 @@ export default function Page() {
   </thead>
   <tbody>
     {courseContent.map((content) => (
-      <tr key={content.id}>
+     
+      <tr key={content.title}>
         <td>{content.contentOrder}</td>
         <td>{content.title}</td>
         <td>{content.type}</td>
@@ -143,16 +118,14 @@ export default function Page() {
               Edit Content
             </Button>
           </Link>
-          <Link href="">
             <Button
               sx={{ ml: 0.5 }}
               color="error"
               variant="contained"
-              onClick={handleDelete}
+              onClick={() => handleDelete(content.id)} // Pass the courseKey as an argument
             >
               Delete Course
             </Button>
-          </Link>
         </td>
       </tr>
     ))}
