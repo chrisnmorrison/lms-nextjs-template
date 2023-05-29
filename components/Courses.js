@@ -83,7 +83,7 @@ export default function UserDashboard() {
                 <td>{content.location}</td>
                 <td>{content.time}</td>
                 <td className="flex">
-                  <Link href={{ pathname: `/editCourseContent/${content.id}` }}>
+                  <Link href={`/courseContent/${content.code}` }>
                     <Button sx={{ mr: 0.5 }} variant="contained">
                       Edit Content
                     </Button>
