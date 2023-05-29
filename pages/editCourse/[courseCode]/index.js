@@ -24,6 +24,7 @@ export default function Page() {
   const { name, code } = data || {};
 
   const router = useRouter();
+  const docId = router.query.docId;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -77,9 +78,9 @@ export default function Page() {
     <>
       {/* <p>Course Code: {router.query.id}</p> */}
       <h1 className="lg-title mb-5">Edit Course Information</h1>
-      <div className="flex">
+      <div className="flex gap-x-36">
         {" "}
-        <div className="flex-1">
+        <div className="form-sm">
           <form id="editCourseForm" onSubmit={handleSubmit}>
             <div>
               <label
@@ -137,6 +138,7 @@ export default function Page() {
             </div>
           </form>
         </div>
+       
         <div className="flex-1">
           <p className='pb-5'>Use this link to edit course content (learning material, videos, etc.)</p>
           <Link href={`/courseContent/${course}`}>

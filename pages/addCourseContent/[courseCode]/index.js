@@ -11,9 +11,9 @@ query,
   where,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
-import TextForm from "../../../components/courseContent/AddCourseTextContent";
-import QuizForm from "../../../components/courseContent/AddCourseQuizContent";
-import VideoForm from "../../../components/courseContent/AddCourseVideoContent";
+import TextForm from "../../../components/addCourseContent/AddCourseTextContent";
+import QuizForm from "../../../components/addCourseContent/AddCourseQuizContent";
+import VideoForm from "../../../components/addCourseContent/AddCourseVideoContent";
 
 import {
   Button

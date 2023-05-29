@@ -75,7 +75,7 @@ export default function UserDashboard() {
   }
 
   return (
-    <div className="text-center w-full max-w-[56rem] text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
+    <div className="text-center w-full  text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
       <h1 className="text-center text-3xl">Home</h1>
 
       <p>

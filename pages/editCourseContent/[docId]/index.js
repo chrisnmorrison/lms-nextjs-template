@@ -1,4 +1,5 @@
 import { useRouter } from "next/router";
+
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import {
@@ -19,13 +20,37 @@ import { Button } from "@mui/material";
 import Link from "next/link";
 
 export default function Page() {
-  const [documentId, setDocumentId] = useState(null);
+    const [documentId, setDocumentId] = useState(null);
   const [data, setData] = useState(null);
   const [course, setCourse] = useState("");
   const [courseContent, setCourseContent] = useState([]);
   const { name, code } = data || {};
+    
 
   const router = useRouter();
+  const  docId  = router.query.docId;
+
+  useEffect(() => {
+    const fetchDocument = async () => {
+      try {
+        const documentRef = doc(db, 'courseContent', docId);
+        const documentSnapshot = await getDoc(documentRef);
+
+        if (documentSnapshot.exists()) {
+          const documentData = documentSnapshot.data();
+          setCourseContent(documentData);
+        } else {
+          console.log('Document not found');
+          // Handle document not found case
+        }
+      } catch (error) {
+        console.error('Error retrieving document:', error);
+        // Handle error case
+      }
+    };
+
+    fetchDocument();
+  }, [docId]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -50,52 +75,23 @@ export default function Page() {
     router.push("/courses");
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const { courseCode } = router.query;
-      setCourse(courseCode);
-
-      try {
-        const courseContentCollection = collection(db, "courseContent");
-        const q = query(
-          courseContentCollection,
-          where("courseId", "==", courseCode)
-        );
-        const querySnapshot = await getDocs(q);
-
-        const courseContentData = [];
-        querySnapshot.forEach((doc) => {
-          courseContentData.push(doc.data());
-        });
-
-        setCourseContent(courseContentData);
-      } catch (error) {
-        console.error("Error retrieving course content:", error);
-        throw error;
-      }
-    };
-
-    fetchData();
-  }, [router.query]);
+  
 
   return (
     <>
       {/* <p>Course Code: {router.query.id}</p> */}
-      <h1>Course ID: {course}</h1>
-      <div className="flex">
-        <ul>
-          {courseContent.map((content) => (
-            <li key={content.id}>{/* Render your course content data */}</li>
-          ))}
-        </ul>
+      <h1>Course Content ID: {JSON.stringify(courseContent)}</h1>
+      <div className="">
+       <h2>Title: {courseContent.title}</h2>
 
         <div className="mt-5">
-          <Link href={`#`}> <Button variant="contained" type="submit">
-            Add New Content
-          </Button></Link>
+        <Button variant="contained" type="submit">
+            Submit
+          </Button>
          
         </div>
       </div>
     </>
   );
 }
+

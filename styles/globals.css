@@ -33,10 +33,16 @@
 }
 
 #default-sidebar{
-  top: 93px;
-  border-right: 1px solid white;
+  /* top: 93px; */
+  border-right: 1px solid rgb(50, 50, 50);
 width: 18vw;
 height: 100vw;
+background: #202020;
+}
+
+.top-nav{
+  border-bottom: 1px solid rgb(71, 71, 71);
+
 }
 
 .sidebar-items{
@@ -52,7 +58,7 @@ height: 100vw;
 
 .sidebar-items li{
   padding: .75rem 2rem .75rem 1rem;
-  margin-left: 1rem;
+  margin-left: 2rem;
 }
 
 select{
@@ -60,7 +66,11 @@ select{
 }
 
 label{
-  margin-top: 1rem;
+  color: #2f3743;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 1.2rem 0 .6rem 0;
+
 }
 
 /* Table styles for dark mode */
@@ -154,4 +164,72 @@ label{
   top: 0;
   z-index: 1;
   background-color: #333;
+}
+
+.small-form{
+  max-width: 25rem;
+}
+
+.form-sm{
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.25rem;
+  background-color: white;
+  margin: 1rem auto;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 0 3rem rgba(255, 255, 255, 0.237);
+  
+}
+
+.form-sm input, .form-sm textarea{
+  width: 25rem;
+}
+
+.form-sm button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  background-color: #2c59d3 !important;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.form-lg{
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.25rem;
+  background-color: white;
+  margin: 1rem auto;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 0 3rem rgba(255, 255, 255, 0.237);
+  width: 70%;
+}
+
+.form-lg button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  background-color: #2c59d3 !important;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+form button:hover{
+ background-color: #1842b6;
+}
+
+.btn-primary{
+  background-color: #2c59d3 !important;
+}
+
+.btn-secondary{
+
 }
