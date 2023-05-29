@@ -1,0 +1,151 @@
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../../../context/AuthContext";
+import {
+  doc,
+  setDoc,
+  deleteField,
+  addDoc,
+  collection,
+  deleteDoc,
+  getDocs,
+  getDoc,
+  updateDoc,
+  query,
+  where,
+} from "firebase/firestore";
+import { db } from "../../../firebase";
+import useFetchCourses from "../../../hooks/fetchCourses";
+import { Button } from "@mui/material";
+import Link from "next/link";
+
+export default function Page() {
+  const [documentId, setDocumentId] = useState(null);
+  const [data, setData] = useState(null);
+  const [course, setCourse] = useState("");
+  const [courseContent, setCourseContent] = useState([]);
+  const { name, code } = data || {};
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { courseCode } = router.query;
+      setCourse(courseCode);
+
+      try {
+        const courseContentCollection = collection(db, "courseContent");
+        const q = query(
+          courseContentCollection,
+          where("courseCode", "==", courseCode)
+        );
+        const querySnapshot = await getDocs(q);
+
+        const courseContentData = [];
+        querySnapshot.forEach((doc) => {
+          courseContentData.push({ id: doc.id, ...doc.data() });
+        });
+        courseContentData.sort((a, b) => a.contentOrder - b.contentOrder);
+        setCourseContent(courseContentData);
+      } catch (error) {
+        console.error("Error retrieving course content:", error);
+        throw error;
+      }
+    };
+
+    fetchData();
+  }, [router.query]);
+
+  const handleDelete = async (contentId) => {
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this content?\n\nDeleting content will move it to Archived Course Content."
+    );
+    if (confirmDelete) {
+    try {
+      // Get a reference to the document to be deleted
+      const courseDocRef = doc(db, "courseContent", contentId);
+
+      // Get the data of the document before deleting it
+      const courseSnapshot = await getDoc(courseDocRef);
+      const courseData = courseSnapshot.data();
+
+      // Add the document to the archivedCourses collection
+      const archivedContentCollection = collection(db, "archivedCourseContent");
+      await addDoc(archivedContentCollection, courseData);
+
+      // Delete the document from the current collection
+      await deleteDoc(courseDocRef);
+
+      setCourseContent((prevCourseContent) =>
+        prevCourseContent.filter((content) => content.id !== contentId)
+      );
+
+      // Perform any additional actions after successful deletion
+      console.log("Content moved to archives");
+      
+    } catch (error) {
+      console.error("Error deleting content:", error);
+      // Handle error and display an error message to the user
+    }
+  }
+}
+
+  return (
+    <>
+      {/* <p>Course Code: {router.query.id}</p> */}
+      <h1>Course ID: {course}</h1>
+      <div className="">
+        <table className="table-dark">
+          <thead>
+            <tr>
+              <th>Content Order</th>
+              <th>Title</th>
+              <th>Type</th>
+              <th>Opens At</th>
+              <th>Due at</th>
+              <th>Closes at</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {courseContent.map((content) => (
+              <tr key={content.title}>
+                <td>{content.contentOrder}</td>
+                <td>{content.title}</td>
+                <td>{content.type}</td>
+                <td>{content.open}</td>
+                <td>{content.due}</td>
+                <td>{content.close}</td>
+                <td className="flex">
+                  <Link href={{ pathname: `/editCourseContent/${content.id}` }}>
+                    <Button sx={{ mr: 0.5 }} variant="contained">
+                      Edit Content
+                    </Button>
+                  </Link>
+                  <Button
+                    sx={{ ml: 0.5 }}
+                    color="error"
+                    variant="contained"
+                    onClick={() => handleDelete(content.id)} // Pass the courseKey as an argument
+                  >
+                    Delete Course
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="mt-5">
+          <Link href={`/addCourseContent/${course}`}>
+            {" "}
+            <Button variant="contained" type="submit">
+              Add New Content
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </>
+  );
+}

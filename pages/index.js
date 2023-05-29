@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import Login from '../components/Login'
-import UserDashboard from '../components/UserDashboard'
+import Homepage from '../components/Homepage'
 import { useAuth } from '../context/AuthContext'
 
 export default function Home() {
@@ -15,7 +15,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {!currentUser && <Login />}
-      {currentUser && <UserDashboard/>}
+      {currentUser && <Homepage/>}
     </>
   )
 }
