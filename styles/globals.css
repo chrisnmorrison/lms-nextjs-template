@@ -233,3 +233,12 @@ form button:hover{
 .btn-secondary{
 
 }
+
+.ql-formats button{
+  background-color: unset !important;
+  margin-top: unset !important;
+}
+
+.ql-editor p{
+  color: #374151;
+}
