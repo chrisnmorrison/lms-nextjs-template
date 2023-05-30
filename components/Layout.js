@@ -8,7 +8,7 @@ export default function Layout(props) {
     return (
         <div className='flex flex-col min-h-screen relative bg-neutral-800 text-white'> 
         <Header/><div className='sidebar-and-main'> <Sidebar/>
-        <main className='flex-1 flex flex-col p-4 inline-block'>
+        <main className='flex-1 flex flex-col p-4 inline-block max-w-[82vw] ml-auto'>
             {children}
         </main></div>
        

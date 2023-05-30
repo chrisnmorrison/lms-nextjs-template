@@ -6,8 +6,12 @@ import useSWR from 'swr'
 const fetchCourses = async () => {
   const coursesCollection = collection(db, 'courses')
   const coursesSnapshot = await getDocs(coursesCollection)
-  const coursesData = coursesSnapshot.docs.map((doc) => doc.data())
-  return coursesData
+  const courseData = [];
+  coursesSnapshot.forEach((doc) => {
+    courseData.push({ id: doc.id, ...doc.data() });
+  });
+  console.log(courseData)
+    return courseData
 }
 
 export default function useFetchCourses() {
