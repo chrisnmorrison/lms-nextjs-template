@@ -17,6 +17,7 @@ import {
 import { db } from "../../../firebase";
 import useFetchCourses from "../../../hooks/fetchCourses";
 import { Button } from "@mui/material";
+import { startCase } from "lodash";
 import Link from "next/link";
 
 export default function Page() {
@@ -113,7 +114,7 @@ export default function Page() {
               <tr key={content.title}>
                 <td>{content.contentOrder}</td>
                 <td>{content.title}</td>
-                <td>{content.type}</td>
+                <td>{startCase(content.type)}</td>
                 <td>{content.open}</td>
                 <td>{content.due}</td>
                 <td>{content.close}</td>

@@ -23,7 +23,6 @@ export default function Home() {
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [videoUpload, setVideoUpload] = useState(null);
-  const [dragActive, setDragActive] = React.useState(false);
 
   const router = useRouter();
 

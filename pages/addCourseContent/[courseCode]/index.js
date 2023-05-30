@@ -107,7 +107,6 @@ export default function Page() {
         <option value="video">Video</option>
         <option value="quiz">Quiz</option>
       </select>
-      <p>Selected option: {selectedDropdown}</p>
        
    
         {formComponent}
