@@ -35,39 +35,38 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
   const [questions, setQuestions] = useState([]);
   const [newQuestion, setNewQuestion] = useState({});
   const [newQuestionAnswers, setNewQuestionAnswers] = useState([]);
-  const [newQuestionCorrectAnswer, setNewQuestionCorrectAnswer] = useState(null);
+  const [newQuestionCorrectAnswer, setNewQuestionCorrectAnswer] =
+    useState(null);
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
   const router = useRouter();
-    documentId = router.query;
+  documentId = router.query;
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const videoQuestionsCollection = collection(db, "videoQuestions");
+        const querySnapshot = await getDocs(
+          query(videoQuestionsCollection, where("contentId", "==", documentId))
+        );
 
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const videoQuestionsCollection = collection(db, "videoQuestions");
-          const querySnapshot = await getDocs(
-            query(videoQuestionsCollection, where("contentId", "==", documentId))
-          );
-    
-          const videoQuestionsData = [];
-          querySnapshot.forEach((doc) => {
-            if (doc.exists()) {
-              const videoQuestion = doc.data();
-              videoQuestionsData.push(videoQuestion);
-            }
-          });
-    
-          setQuestions(videoQuestionsData);
-        } catch (error) {
-          console.error("Error retrieving video questions:", error);
-          throw error;
-        }
-      };
-    
-      fetchData();
-    }, [documentId]);
-    
+        const videoQuestionsData = [];
+        querySnapshot.forEach((doc) => {
+          if (doc.exists()) {
+            const videoQuestion = doc.data();
+            videoQuestionsData.push(videoQuestion);
+          }
+        });
+
+        setQuestions(videoQuestionsData);
+      } catch (error) {
+        console.error("Error retrieving video questions:", error);
+        throw error;
+      }
+    };
+
+    fetchData();
+  }, [documentId]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -107,7 +106,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
   };
 
   //////////// For Adding New Question ////////////
-  
+
   const handleNewHourChange = (e) => {
     const updatedQuestion = newQuestion;
     updatedQuestion.hour = e.target.value;
@@ -144,7 +143,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
   };
 
   const handleNewCorrectAnswerChange = (e, index) => {
-    const updatedCorrectAnswer = e.target.checked ? index : null;;
+    const updatedCorrectAnswer = e.target.checked ? index : null;
     setNewQuestionCorrectAnswer(updatedCorrectAnswer);
     console.log(updatedCorrectAnswer);
   };
@@ -153,56 +152,40 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
     console.log("adding new question");
     setNewQuestionAnswers((prevAnswers) => {
       const updatedAnswers = [...prevAnswers];
-      const updatedAnswer = { ...updatedAnswers[newQuestionCorrectAnswer], is_correct: true };
-      updatedAnswers[index] = updatedAnswer;
+      const updatedAnswer = {
+        ...updatedAnswers[newQuestionCorrectAnswer],
+        is_correct: true,
+      };
+     
       return updatedAnswers;
     });
-    await setNewQuestion((newQuestion) => [
-      ...newQuestion,
-      { answers: updatedAnswers,
-        contentId: documentId,
-       },
-    ]);
-    try{
-       // Add newQuestionData to the 'videoQuestions' collection
-    const docRef = await addDoc(collection(db, "videoQuestions"), newQuestion);
-    console.log("New question added with ID: ", docRef.id);
+    console.log("Answers: ",newQuestionAnswers)
+    console.log("Doc id:", documentId.docId)
+    newQuestion.answers = newQuestionAnswers;
+    newQuestion.contentId = documentId;
 
-    // Reset state and perform any other necessary actions
-    setNewQuestionAnswers([]);
-    setNewQuestion([]);
+    try {
+      // Add newQuestionData to the 'videoQuestions' collection
+      const docRef = await addDoc(
+        collection(db, "videoQuestions"),
+        newQuestion
+      );
+      console.log("New question added with ID: ", docRef.id);
 
-    // Additional logic or navigation can be implemented here
-  } catch (error) {
-    console.error("Error adding new question: ", error);
-  }
+      // Reset state and perform any other necessary actions
+      setNewQuestionAnswers([]);
+      setNewQuestion({});
+
+      // Additional logic or navigation can be implemented here
+    } catch (error) {
+      console.error("Error adding new question: ", error);
     }
-  
-  
+  };
 
   ////////////////////
 
-  const handleFormSubmit = async (event) => {
-    event.preventDefault();
-    if (videoUpload === null) {
-      return;
-    }
-
-    const storageRef = ref(storage, `videos/${v4() + videoUpload.name}`);
-    await uploadBytes(storageRef, videoUpload);
-
-    const videoUrl = await getDownloadURL(storageRef);
-    console.log(videoUrl);
-
-    const updatedFormData = {
-      ...formData,
-      videoUrl: videoUrl,
-    };
-    console.log(updatedFormData);
-
-    //console.log(jsonData);
-    onSubmit(updatedFormData);
-    router.push(`/courseContent/${courseCode}`);
+  const handleEditTimestamp = async (event) => {
+   
   };
 
   const handleInputChange = (event) => {
@@ -217,7 +200,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
   return (
     <>
       {" "}
-      <form className="form-lg" onSubmit={handleFormSubmit}>
+      <form className="form-lg" onSubmit={handleEditTimestamp}>
         {questions.map((question, index) => (
           <div key={index}>
             <label>Question {index + 1}</label>
@@ -254,7 +237,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
           <div className="flex flex-col">
             <label className="sm">Hours : Minutes : Seconds</label>
             <div className="flex align-center">
-            <input
+              <input
                 onChange={(e) => handleNewHourChange(e)}
                 type="number"
                 name="minutes"
@@ -400,9 +383,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
                 </label>
               </div>
             </div>
-            <div className="mt-5">
-             
-            </div>
+            <div className="mt-5"></div>
           </div>
         </div>
         <div className="mt-5">
