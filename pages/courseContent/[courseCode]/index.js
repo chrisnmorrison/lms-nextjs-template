@@ -28,11 +28,11 @@ export default function Page() {
   const { name, code } = data || {};
 
   const router = useRouter();
+  const { courseCode } = router.query;
 
   useEffect(() => {
     const fetchData = async () => {
       console.log(router.query);
-      const { courseCode } = router.query;
       setCourse(courseCode);
 
       try {

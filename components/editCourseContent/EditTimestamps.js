@@ -22,6 +22,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/router";
 import { v4 } from "uuid";
+import { CompressOutlined } from "@mui/icons-material";
 
 let textAreaValue = "";
 
@@ -40,7 +41,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
   const router = useRouter();
-  documentId = router.query;
+  documentId = router.query.docId;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,11 +55,13 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
         querySnapshot.forEach((doc) => {
           if (doc.exists()) {
             const videoQuestion = doc.data();
+            videoQuestion.currentDocId = doc.id;
             videoQuestionsData.push(videoQuestion);
           }
         });
 
         setQuestions(videoQuestionsData);
+        console.log(questions)
       } catch (error) {
         console.error("Error retrieving video questions:", error);
         throw error;
@@ -84,19 +87,34 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
     ]);
   };
 
-  const handleQuestionChange = (e, index) => {
+  const handleHourChange = (e, index) => {
     const updatedQuestions = [...questions];
-    updatedQuestions[index].question = e.target.value;
+    updatedQuestions[index].hour = e.target.value;
     setQuestions(updatedQuestions);
     console.log(updatedQuestions);
   };
 
-  const handleAnswerChange = (e, questionIndex, answerIndex) => {
+  const handleMinuteChange = (e, index) => {
     const updatedQuestions = [...questions];
-    updatedQuestions[questionIndex].answers[answerIndex] = e.target.value;
+    updatedQuestions[index].minute = e.target.value;
     setQuestions(updatedQuestions);
     console.log(updatedQuestions);
   };
+
+  const handleSecondChange = (e, index) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[index].second = e.target.value;
+    setQuestions(updatedQuestions);
+    console.log(updatedQuestions);
+  };
+
+  const handleAnswerChange = (e, index, questionIndex) => {
+    const updatedAnswers = [...newQuestionAnswers]; // Create a copy of newQuestionAnswers array
+    updatedAnswers[index].answers[questionIndex] = e.target.value;
+    setNewQuestionAnswers(updatedAnswers);
+    console.log(updatedAnswers);
+  };
+
 
   const handleCorrectAnswerChange = (e, index) => {
     const updatedQuestions = [...questions];
@@ -104,6 +122,35 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
     setQuestions(updatedQuestions);
     console.log(updatedQuestions);
   };
+
+  const handleEditQuestion = async (index) => {
+    event.preventDefault();
+    console.log("editing question at index", index);
+  
+    const questionToEdit = questions[index];
+  
+    console.log("Answers: ", newQuestionAnswers);
+    console.log("Doc id:", documentId.docId);
+    questionToEdit.answers = newQuestionAnswers;
+    questionToEdit.correctAnswer = newQuestionCorrectAnswer;
+    questionToEdit.contentId = documentId.docId;
+    console.log(questionToEdit);
+  
+    try {
+      // Update the specific question in the 'videoQuestions' collection
+      await updateDoc(doc(db, "videoQuestions", questionToEdit.documentId), questionToEdit);
+      console.log("Question updated with ID: ", questionToEdit.documentId);
+  
+      // Reset state and perform any other necessary actions
+      setNewQuestionAnswers([]);
+      setNewQuestion({});
+  
+      // Additional logic or navigation can be implemented here
+    } catch (error) {
+      console.error("Error updating question: ", error);
+    }
+  };
+  
 
   //////////// For Adding New Question ////////////
 
@@ -149,20 +196,15 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
   };
 
   const handleAddNewQuestion = async () => {
+    event.preventDefault()
     console.log("adding new question");
-    setNewQuestionAnswers((prevAnswers) => {
-      const updatedAnswers = [...prevAnswers];
-      const updatedAnswer = {
-        ...updatedAnswers[newQuestionCorrectAnswer],
-        is_correct: true,
-      };
-     
-      return updatedAnswers;
-    });
+   
     console.log("Answers: ",newQuestionAnswers)
     console.log("Doc id:", documentId.docId)
     newQuestion.answers = newQuestionAnswers;
-    newQuestion.contentId = documentId;
+    newQuestion.correctAnswer = newQuestionCorrectAnswer;
+    newQuestion.contentId = documentId.docId;
+    console.log(newQuestion);
 
     try {
       // Add newQuestionData to the 'videoQuestions' collection
@@ -173,6 +215,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
       console.log("New question added with ID: ", docRef.id);
 
       // Reset state and perform any other necessary actions
+      setQuestions((prevQuestions) => [...prevQuestions, newQuestion]);
       setNewQuestionAnswers([]);
       setNewQuestion({});
 
@@ -202,35 +245,171 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
       {" "}
       <form className="form-lg" onSubmit={handleEditTimestamp}>
         {questions.map((question, index) => (
-          <div key={index}>
-            <label>Question {index + 1}</label>
+      
+          <div className="existing-q-wrapper" key={index}>
+          <label>Question {index + 1}</label>
+          <div className="flex flex-col">
+            <label className="sm">Hours : Minutes : Seconds</label>
+            <div className="flex align-center">
+              <input
+                onChange={(e) => handleHourChange(e, index)}
+                type="number"
+                name="minutes"
+                min="0"
+                max="10"
+                defaultValue={question.hour}
+                required
+                className="w-[5rem] inline"
+              />
+              <p
+                style={{
+                  fontSize: "24px",
+                  marginLeft: ".5rem",
+                  marginRight: ".5rem",
+                }}
+                className="text-black"
+              >
+                {" "}
+                :{" "}
+              </p>
+              <input
+                onChange={(e) => handleMinuteChange(e, index)}
+                type="number"
+                name="minutes"
+                min="0"
+                max="59"
+                defaultValue={question.minute}
+                required
+                className="w-[5rem] inline"
+              />
+              <p
+                style={{
+                  fontSize: "24px",
+                  marginLeft: ".5rem",
+                  marginRight: ".5rem",
+                }}
+                className="text-black"
+              >
+                {" "}
+                :{" "}
+              </p>
+              <input
+                onChange={(e) => handleSecondChange(e, index)}
+                type="number"
+                name="seconds"
+                min="0"
+                max="59"
+                defaultValue={question.second}
+                required
+                className="w-[5rem] inline"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <label className="sm">Question: </label>
             <input
               type="text"
-              value={question.question}
+              defaultValue={question.question}
               onChange={(e) => handleQuestionChange(e, index)}
-            />
-
-            <label>Answers</label>
-            {question.answers.map((answer, answerIndex) => (
-              <div key={answerIndex}>
-                <input
-                  type="text"
-                  value={answer}
-                  onChange={(e) => handleAnswerChange(e, index, answerIndex)}
-                />
-                <label>
-                  Correct Answer
+            ></input>
+          </div>
+          <div className="flex flex-row mt-5">
+            <div>
+              <label className="sm">Option 1</label>
+              <input
+                type="text"
+                placeholder="Option 1"
+                defaultValue={question.answers[0]}
+                onChange={(e) => handleAnswerChange(e, index, 0)}
+              />
+            </div>
+            <div>
+              <label className="sm">Option 2</label>
+              <input
+                type="text"
+                placeholder="Option 2"
+                defaultValue={question.answers[1]}
+                onChange={(e) => handleAnswerChange(e, index, 1)}
+              />
+            </div>
+            <div>
+              <label className="sm">Option 3</label>
+              <input
+                type="text"
+                placeholder="Option 3"
+                defaultValue={question.answers[2]}
+                onChange={(e) => handleAnswerChange(e, index, 2)}
+              />
+            </div>
+            <div>
+              <label className="sm">Option 4</label>
+              <input
+                type="text"
+                placeholder="Option 4"
+                defaultValue={question.answers[3]}
+                onChange={(e) => handleAnswerChange(e, index, 3)}
+              />
+            </div>
+          </div>
+          <div className="mt-5">
+            <label>Correct Option</label>
+            <div className="flex flex-row justify-evenly">
+              <div>
+                <label className="sm">
                   <input
-                    type="checkbox"
-                    checked={question.correctAnswer === answerIndex}
-                    onChange={(e) => handleCorrectAnswerChange(e, index)}
-                  />
+                    type="radio"
+                    name="radioGroup"
+                    value="option1"
+                    checked={question.correctAnswer === 0 ? "checked" : ""}
+                    onChange={(e) => handleCorrectAnswerChange(e, index, 0)}
+                  />{" "}
+                  Option 1
                 </label>
               </div>
-            ))}
+              <div>
+                <label className="sm">
+                  <input
+                    type="radio"
+                    name="radioGroup"
+                    value="option2"
+                    checked={question.correctAnswer === 1 ? "checked" : ""}
+                    onChange={(e) => handleCorrectAnswerChange(e, index, 1)}
+                  />{" "}
+                  Option 2
+                </label>
+              </div>
+              <div>
+                <label className="sm">
+                  <input
+                    type="radio"
+                    name="radioGroup"
+                    value="option3"
+                    checked={question.correctAnswer === 2 ? "checked" : ""}
+                    onChange={(e) => handleCorrectAnswerChange(e, index, 2)}
+                  />{" "}
+                  Option 3
+                </label>
+              </div>
+              <div>
+                <label className="sm">
+                  <input
+                    type="radio"
+                    name="radioGroup"
+                    value="option4"
+                    checked={question.correctAnswer === 3 ? "checked" : ""}
+                    onChange={(e) => handleCorrectAnswerChange(e, index, 3)}
+                  />{" "}
+                  Option 4
+                </label>
+              </div>
+            </div>
+            <div className="mt-5"></div>
           </div>
+        </div>
+         
+         
         ))}
-      </form>{" "}
+      </form>
       <form className="form-lg" onSubmit={handleAddNewQuestion}>
         <div className="new-q-wrapper">
           <label>New Question</label>{" "}
@@ -243,7 +422,6 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
                 name="minutes"
                 min="0"
                 max="10"
-                defaultValue={0}
                 value={newQuestion.hour}
                 required
                 className="w-[5rem] inline"
@@ -265,7 +443,6 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
                 name="minutes"
                 min="0"
                 max="59"
-                defaultValue={0}
                 value={newQuestion.minute}
                 required
                 className="w-[5rem] inline"
@@ -287,7 +464,6 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
                 name="seconds"
                 min="0"
                 max="59"
-                defaultValue={0}
                 value={newQuestion.second}
                 required
                 className="w-[5rem] inline"
