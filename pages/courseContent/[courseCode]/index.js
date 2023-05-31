@@ -31,6 +31,7 @@ export default function Page() {
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log(router.query);
       const { courseCode } = router.query;
       setCourse(courseCode);
 
@@ -58,39 +59,40 @@ export default function Page() {
   }, [router.query]);
 
   const handleDelete = async (contentId) => {
-
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this content?\n\nDeleting content will move it to Archived Course Content."
     );
     if (confirmDelete) {
-    try {
-      // Get a reference to the document to be deleted
-      const courseDocRef = doc(db, "courseContent", contentId);
+      try {
+        // Get a reference to the document to be deleted
+        const courseDocRef = doc(db, "courseContent", contentId);
 
-      // Get the data of the document before deleting it
-      const courseSnapshot = await getDoc(courseDocRef);
-      const courseData = courseSnapshot.data();
+        // Get the data of the document before deleting it
+        const courseSnapshot = await getDoc(courseDocRef);
+        const courseData = courseSnapshot.data();
 
-      // Add the document to the archivedCourses collection
-      const archivedContentCollection = collection(db, "archivedCourseContent");
-      await addDoc(archivedContentCollection, courseData);
+        // Add the document to the archivedCourses collection
+        const archivedContentCollection = collection(
+          db,
+          "archivedCourseContent"
+        );
+        await addDoc(archivedContentCollection, courseData);
 
-      // Delete the document from the current collection
-      await deleteDoc(courseDocRef);
+        // Delete the document from the current collection
+        await deleteDoc(courseDocRef);
 
-      setCourseContent((prevCourseContent) =>
-        prevCourseContent.filter((content) => content.id !== contentId)
-      );
+        setCourseContent((prevCourseContent) =>
+          prevCourseContent.filter((content) => content.id !== contentId)
+        );
 
-      // Perform any additional actions after successful deletion
-      console.log("Content moved to archives");
-      
-    } catch (error) {
-      console.error("Error deleting content:", error);
-      // Handle error and display an error message to the user
+        // Perform any additional actions after successful deletion
+        console.log("Content moved to archives");
+      } catch (error) {
+        console.error("Error deleting content:", error);
+        // Handle error and display an error message to the user
+      }
     }
-  }
-}
+  };
 
   return (
     <>
@@ -119,8 +121,16 @@ export default function Page() {
                 <td>{content.due}</td>
                 <td>{content.close}</td>
                 <td className="flex">
-                  <Link href={{ pathname: `/editCourseContent/${content.id}` }}>
-                    <Button sx={{ mr: 0.5 }} variant="contained">
+                  {content.type == "video" ? (
+                    <Link href={`${course}/editTimestamps/${content.id}`}>
+                      <Button sx={{ mr: 0.5, ml: 0.5 }} variant="contained" color='success'>
+                        Edit Timestamps
+                      </Button>
+                    </Link>
+                  ) : null}
+
+                  <Link href={`${course}/editCourseContent/${content.id}`}>
+                    <Button sx={{ mr: 0.5, ml: 0.5 }} variant="contained">
                       Edit Content
                     </Button>
                   </Link>

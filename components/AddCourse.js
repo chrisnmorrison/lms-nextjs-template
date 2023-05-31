@@ -155,7 +155,7 @@ export default function UserDashboard() {
        />
               <button
                 onClick={handleAddCourse}
-                className=""
+                className="btn"
                 type="button"
               >
                 Submit
