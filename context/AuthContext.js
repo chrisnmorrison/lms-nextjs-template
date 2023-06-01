@@ -17,6 +17,7 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   async function signup(email, password) {
     try {
@@ -43,8 +44,18 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
-      setLoading(false);
+      if (user) {
+        setCurrentUser(user);
+        setLoading(false);
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+            setIsAdmin(userDoc.data().isAdmin);
+        }
+      } else {
+        setCurrentUser(null);
+        setLoading(true);
+        setIsAdmin(false);
+      }
     });
     return unsubscribe;
   }, []);
@@ -54,6 +65,7 @@ export function AuthProvider({ children }) {
     login,
     signup,
     logout,
+    isAdmin
   };
 
   return (
