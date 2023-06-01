@@ -17,21 +17,20 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   async function signup(email, password) {
-    const user = {
-        email: email,
-        // Add any other user details you want to store
-      };
-    await createUserWithEmailAndPassword(auth, email, password);
-    await addDoc(collection(db, "users"), user)
-      .then((docRef) => {
-        console.log("User document created with ID: ", docRef.id);
-      })
-      .catch((error) => {
-        console.error("Error adding user document: ", error);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Make sure user is not admin by default
+      await setDoc(doc(db, "users", user.uid), {
+        email,
+        isAdmin: false
       });
-    return;
+    } catch (error) {
+        console.error(error);
+    }
   }
 
   function login(email, password) {
