@@ -124,7 +124,7 @@ export default function Page() {
                   {content.type == "video" ? (
                     <Link href={`${course}/editTimestamps/${content.id}`}>
                       <Button sx={{ mr: 0.5, ml: 0.5 }} variant="contained" color='success'>
-                        Edit Timestamps
+                        Edit Video Questions
                       </Button>
                     </Link>
                   ) : null}

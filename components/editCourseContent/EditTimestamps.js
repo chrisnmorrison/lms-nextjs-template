@@ -13,6 +13,7 @@ import {
   setDoc,
   deleteField,
   getDoc,
+  updateDoc,
   getDocs,
   query,
   where,
@@ -26,7 +27,7 @@ import { CompressOutlined } from "@mui/icons-material";
 
 let textAreaValue = "";
 
-const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
+const AddCourseVideoContent = ({ onSubmit, documentIdOfVideo, courseCode }) => {
   const [formData, setFormData] = useState({});
   const [anchorEl, setAnchorEl] = React.useState(null);
   const { currentUser } = useAuth();
@@ -41,14 +42,15 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
   const router = useRouter();
-  documentId = router.query.docId;
+  documentIdOfVideo = router.query.docId;
+  console.log("Test: ",router.query.docId)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const videoQuestionsCollection = collection(db, "videoQuestions");
         const querySnapshot = await getDocs(
-          query(videoQuestionsCollection, where("contentId", "==", documentId))
+          query(videoQuestionsCollection, where("contentId", "==", documentIdOfVideo))
         );
 
         const videoQuestionsData = [];
@@ -61,7 +63,6 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
         });
 
         setQuestions(videoQuestionsData);
-        console.log(questions)
       } catch (error) {
         console.error("Error retrieving video questions:", error);
         throw error;
@@ -69,7 +70,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
     };
 
     fetchData();
-  }, [documentId]);
+  }, [documentIdOfVideo]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -108,42 +109,43 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
     console.log(updatedQuestions);
   };
 
-  const handleAnswerChange = (e, index, questionIndex) => {
-    const updatedAnswers = [...newQuestionAnswers]; // Create a copy of newQuestionAnswers array
-    updatedAnswers[index].answers[questionIndex] = e.target.value;
-    setNewQuestionAnswers(updatedAnswers);
-    console.log(updatedAnswers);
-  };
-
-
-  const handleCorrectAnswerChange = (e, index) => {
+   const handleQuestionChange = (e, index) => {
     const updatedQuestions = [...questions];
-    updatedQuestions[index].correctAnswer = e.target.checked ? index : null;
+    updatedQuestions[index].question = e.target.value;
     setQuestions(updatedQuestions);
     console.log(updatedQuestions);
   };
 
-  const handleEditQuestion = async (index) => {
+  const handleAnswerChange = (e, index, questionIndex) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[index].answers[questionIndex] = e.target.value;
+    setNewQuestionAnswers(updatedQuestions);
+    console.log(updatedQuestions);
+  };
+
+
+  const handleCorrectAnswerChange = (e, index, value) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[index].correctAnswer = value;
+    setQuestions(updatedQuestions);
+    console.log(updatedQuestions);
+  };
+
+  const handleEditQuestion = async (index, docId) => {
     event.preventDefault();
     console.log("editing question at index", index);
   
     const questionToEdit = questions[index];
-  
-    console.log("Answers: ", newQuestionAnswers);
-    console.log("Doc id:", documentId.docId);
-    questionToEdit.answers = newQuestionAnswers;
-    questionToEdit.correctAnswer = newQuestionCorrectAnswer;
-    questionToEdit.contentId = documentId.docId;
     console.log(questionToEdit);
-  
+    const { currentDocId, ...questionWithoutDocId } = questionToEdit;  
+    console.log("Edited doc: ", questionWithoutDocId);
+     
     try {
       // Update the specific question in the 'videoQuestions' collection
-      await updateDoc(doc(db, "videoQuestions", questionToEdit.documentId), questionToEdit);
-      console.log("Question updated with ID: ", questionToEdit.documentId);
+      await updateDoc(doc(db, "videoQuestions", currentDocId), questionWithoutDocId);
+      console.log("Question updated with ID: ", currentDocId);
   
-      // Reset state and perform any other necessary actions
-      setNewQuestionAnswers([]);
-      setNewQuestion({});
+      alert("Successfully updated question!")
   
       // Additional logic or navigation can be implemented here
     } catch (error) {
@@ -196,29 +198,31 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
   };
 
   const handleAddNewQuestion = async () => {
-    event.preventDefault()
+    event.preventDefault();
     console.log("adding new question");
-   
-    console.log("Answers: ",newQuestionAnswers)
-    console.log("Doc id:", documentId.docId)
-    newQuestion.answers = newQuestionAnswers;
-    newQuestion.correctAnswer = newQuestionCorrectAnswer;
-    newQuestion.contentId = documentId.docId;
-    console.log(newQuestion);
-
+  
+    console.log("Answers: ", newQuestionAnswers);
+    console.log("Doc id:", documentIdOfVideo);
+    const updatedQuestion = {
+      ...newQuestion, // Create a copy of newQuestion object
+      answers: newQuestionAnswers,
+      correctAnswer: newQuestionCorrectAnswer,
+      contentId: documentIdOfVideo,
+    };
+  
+    console.log(updatedQuestion);
+  
     try {
-      // Add newQuestionData to the 'videoQuestions' collection
-      const docRef = await addDoc(
-        collection(db, "videoQuestions"),
-        newQuestion
-      );
+      // Add updatedQuestion to the 'videoQuestions' collection
+      const docRef = await addDoc(collection(db, "videoQuestions"), updatedQuestion);
       console.log("New question added with ID: ", docRef.id);
-
+  
       // Reset state and perform any other necessary actions
-      setQuestions((prevQuestions) => [...prevQuestions, newQuestion]);
+      setQuestions((prevQuestions) => [...prevQuestions, updatedQuestion]);
       setNewQuestionAnswers([]);
       setNewQuestion({});
-
+      setNewQuestionCorrectAnswer(null);
+  
       // Additional logic or navigation can be implemented here
     } catch (error) {
       console.error("Error adding new question: ", error);
@@ -227,26 +231,16 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
 
   ////////////////////
 
-  const handleEditTimestamp = async (event) => {
-   
-  };
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
-    console.log(formData);
-  };
+
 
   return (
     <>
-      {" "}
-      <form className="form-lg" onSubmit={handleEditTimestamp}>
-        {questions.map((question, index) => (
       
-          <div className="existing-q-wrapper" key={index}>
+    <div>
+        {questions.map((question, index) => (
+        <form key={index} className="form-lg" onSubmit={() => handleEditQuestion(index, question.currentDocId)}>
+          <div className="existing-q-wrapper">
           <label>Question {index + 1}</label>
           <div className="flex flex-col">
             <label className="sm">Hours : Minutes : Seconds</label>
@@ -405,11 +399,15 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
             </div>
             <div className="mt-5"></div>
           </div>
+          <Button className="btn" variant="contained" type="submit">
+            Edit Question
+          </Button>
         </div>
          
          
-        ))}
-      </form>
+         </form>
+     ))}   </div> 
+    
       <form className="form-lg" onSubmit={handleAddNewQuestion}>
         <div className="new-q-wrapper">
           <label>New Question</label>{" "}
@@ -531,6 +529,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode }) => {
                     type="radio"
                     name="radioGroup"
                     value="option2"
+                   
                     onChange={(e) => handleNewCorrectAnswerChange(e, 1)}
                   />{" "}
                   Option 2
