@@ -26,7 +26,15 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
   const router = useRouter();
 
 
-
+  useEffect(() => {
+    // Initialize the courseCode field with the value of courseCode
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      courseCode: courseCode,
+      type: "video",
+    }));
+    console.log(formData);
+  }, []);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -51,18 +59,17 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
       await uploadBytes(storageRef, videoUpload);
   
       const videoUrl = await getDownloadURL(storageRef);
-  
+  console.log(videoUrl);
     
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      videoUrl: videoUrl,
-    }));
-    const jsonData = JSON.stringify(formData);
+  const updatedFormData = {
+    ...formData,
+    videoUrl: videoUrl,
+  };
+    console.log(updatedFormData)
 
-    console.log(jsonData);
-    onSubmit(formData); // Call the onSubmit callback with the form data
-    setFormData(""); // Clear the form data after submission
-    router.push(`/courseContent/${courseCode}}`)
+    //console.log(jsonData);
+    onSubmit(updatedFormData); 
+    router.push(`/courseContent/${courseCode}`)
   };
 
   const handleInputChange = (event) => {
@@ -72,7 +79,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
       ...prevFormData,
       [name]: value,
     }));
-    console.log(formData);
+   // console.log(formData);
   };
 
 
@@ -87,7 +94,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
       </label>
       <input
         onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        className=""
         type="text"
         id="title"
         name="title"
@@ -102,7 +109,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
 
       <input
         onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        className=""
         type="text"
         id="contentOrder"
         name="contentOrder"
@@ -145,7 +152,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
       </label>
       <input
         onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        className=""
         type="datetime-local"
         name="due"
       />
@@ -157,7 +164,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
       </label>
       <input
         onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        className=""
         type="datetime-local"
         name="open"
       />
@@ -170,7 +177,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
       </label>
       <input
         onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        className=""
         type="datetime-local"
         name="close"
       />
@@ -202,7 +209,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
             </label>
 
       <div className="mt-5">
-        <Button variant="contained" type="submit">
+        <Button variant="contained" type="submit" className="btn">
           Submit
         </Button>
       </div>

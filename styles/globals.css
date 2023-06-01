@@ -73,6 +73,11 @@ label{
 
 }
 
+label.sm {
+  font-size: 1rem;  
+  font-weight: 500;
+}
+
 /* Table styles for dark mode */
 .table-dark {
   width: 100%;
@@ -209,7 +214,7 @@ label{
   width: 70%;
 }
 
-.form-lg button {
+.form-lg .btn {
   margin-top: 1rem;
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
@@ -220,6 +225,23 @@ label{
   border: none;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+}
+
+input {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    color: #374151;
+  line-height: 1.25;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+
+
+  border-width: 1px;
+
+
+  border-radius: 0.25rem;
 }
 
 form button:hover{
@@ -241,4 +263,9 @@ form button:hover{
 
 .ql-editor p{
   color: #374151;
+}
+
+.new-q-wrapper{
+  border: 1px solid #dbdbdb;
+  padding: 1rem;
 }
