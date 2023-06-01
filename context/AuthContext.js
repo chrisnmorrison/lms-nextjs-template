@@ -53,7 +53,7 @@ export function AuthProvider({ children }) {
         }
       } else {
         setCurrentUser(null);
-        setLoading(true);
+        setLoading(false);
         setIsAdmin(false);
       }
     });
