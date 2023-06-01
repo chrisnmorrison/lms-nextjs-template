@@ -17,21 +17,21 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+  const [isAdmin, setIsAdmin] = useState(false);
+
   async function signup(email, password) {
-    const user = {
-        email: email,
-        // Add any other user details you want to store
-      };
-    await createUserWithEmailAndPassword(auth, email, password);
-    await addDoc(collection(db, "users"), user)
-      .then((docRef) => {
-        console.log("User document created with ID: ", docRef.id);
-      })
-      .catch((error) => {
-        console.error("Error adding user document: ", error);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Make sure user is not admin by default
+      await setDoc(doc(db, "users", user.uid), {
+        email,
+        isAdmin: false
       });
-    return;
+    } catch (error) {
+        console.error(error);
+    }
   }
 
   function login(email, password) {
@@ -44,8 +44,18 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
-      setLoading(false);
+      if (user) {
+        setCurrentUser(user);
+        setLoading(false);
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+            setIsAdmin(userDoc.data().isAdmin);
+        }
+      } else {
+        setCurrentUser(null);
+        setLoading(false);
+        setIsAdmin(false);
+      }
     });
     return unsubscribe;
   }, []);
@@ -55,6 +65,7 @@ export function AuthProvider({ children }) {
     login,
     signup,
     logout,
+    isAdmin
   };
 
   return (
