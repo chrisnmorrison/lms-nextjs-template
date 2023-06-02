@@ -186,7 +186,7 @@ label.sm {
   
 }
 
-.form-sm input, .form-sm textarea{
+ .form-sm textarea{
   width: 25rem;
 }
 
@@ -261,7 +261,7 @@ form button:hover{
   margin-top: unset !important;
 }
 
-.ql-editor p{
+.ql-editor{
   color: #374151;
 }
 

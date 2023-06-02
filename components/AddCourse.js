@@ -59,15 +59,37 @@ export default function UserDashboard() {
               />
            
               <label className="">
-                Semester
+                Course Code
               </label>
               <input
-                value={course.name}
-                onChange={(e) => setCourse({ ...course, name: e.target.value })}
+                value={course.courseCode}
+                onChange={(e) => setCourse({ ...course, courseCode: e.target.value.replace(/\s/g, '') })}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="courseName"
                 type="text"
-                placeholder="Course Name"
+                placeholder="e.g. ITAL1000"
+              />
+               <label className="">
+                Course Section
+              </label>
+              <input
+                value={course.section}
+                onChange={(e) => setCourse({ ...course, section: e.target.value.replace(/\s/g, '') })}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="courseName"
+                type="text"
+                placeholder="e.g. A"
+              />
+                <label className="">
+                Year
+              </label>
+              <input
+                value={course.year}
+                onChange={(e) => setCourse({ ...course, year: e.target.value.replace(/\s/g, '') })}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="courseName"
+                type="text"
+                placeholder="e.g. 2023"
               />
            
               <label className="">
@@ -96,6 +118,17 @@ export default function UserDashboard() {
     type="checkbox"
     id="virtualClass"
   />
+
+<label className="">
+    Is this class actively running? (inactive classes will not be shown to students)
+  </label>
+  <input
+    checked={course.activeCourse}
+    onChange={(e) => setCourse({ ...course, activeCourse: e.target.checked })}
+    className="form-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+    type="checkbox"
+    id="virtualClass"
+  />
         
   <label className="">
     Building & Location
@@ -106,8 +139,7 @@ export default function UserDashboard() {
     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
     id="courseName"
     type="text"
-    placeholder="Course Name"
-  />
+    placeholder="e.g. River Building, 2200 (optional, leave blank if class is virtual)"  />
 
   <label className="">
     Day

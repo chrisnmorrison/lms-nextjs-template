@@ -25,21 +25,20 @@ export default function Page() {
   const [data, setData] = useState(null);
   const [course, setCourse] = useState("");
   const [courseContent, setCourseContent] = useState([]);
-  const { name, code } = data || {};
 
   const router = useRouter();
-  const { courseCode } = router.query;
+  const docId  = router.query.docId;
+ 
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log(router.query);
-      setCourse(courseCode);
+     
 
       try {
         const courseContentCollection = collection(db, "courseContent");
         const q = query(
           courseContentCollection,
-          where("courseCode", "==", courseCode)
+          where("courseDocId", "==", docId)
         );
         const querySnapshot = await getDocs(q);
 
@@ -97,7 +96,7 @@ export default function Page() {
   return (
     <>
       {/* <p>Course Code: {router.query.id}</p> */}
-      <h1>Course ID: {course}</h1>
+      {/* <h1>Course ID: {course}</h1> */}
       <div className="">
         <table className="table-dark">
           <thead>
@@ -149,7 +148,7 @@ export default function Page() {
         </table>
 
         <div className="mt-5">
-          <Link href={`/addCourseContent/${course}`}>
+          <Link href={`/addCourseContent/${docId}`}>
             {" "}
             <Button variant="contained" type="submit">
               Add New Content

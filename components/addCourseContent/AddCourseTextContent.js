@@ -12,8 +12,8 @@ import Typography from "@mui/material/Typography";
 
 let textAreaValue = "";
 
-const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
-  console.log(courseCode);
+const AddCourseTextContent = ({ onSubmit, documentId, type }) => {
+  console.log(documentId);
   const [formData, setFormData] = useState({});
   const [textContent, setTextContent] = useState("");
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -21,10 +21,10 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
   const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
   useEffect(() => {
-    // Initialize the courseCode field with the value of courseCode
+    // Initialize the courseDocId field with the value of documentId
     setFormData((prevFormData) => ({
       ...prevFormData,
-      courseCode: courseCode,
+      courseDocId: documentId,
       type: "text",
     }));
     console.log(formData);
