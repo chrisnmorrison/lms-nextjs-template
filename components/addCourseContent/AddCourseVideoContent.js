@@ -14,8 +14,8 @@ import { v4 } from "uuid";
 
 let textAreaValue = "";
 
-const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
-  console.log(courseCode);
+const AddCourseVideoContent = ({ onSubmit, documentId, type }) => {
+  console.log(documentId);
   const [formData, setFormData] = useState({});
   const [anchorEl, setAnchorEl] = React.useState(null);
   const { currentUser } = useAuth();
@@ -30,7 +30,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
     // Initialize the courseCode field with the value of courseCode
     setFormData((prevFormData) => ({
       ...prevFormData,
-      courseCode: courseCode,
+      courseDocId: documentId,
       type: "video",
     }));
     console.log(formData);
@@ -69,7 +69,6 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
 
     //console.log(jsonData);
     onSubmit(updatedFormData); 
-    router.push(`/courseContent/${courseCode}`)
   };
 
   const handleInputChange = (event) => {

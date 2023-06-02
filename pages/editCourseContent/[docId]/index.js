@@ -10,9 +10,10 @@ query,
   addDoc,
   where,
 } from "firebase/firestore";
-import { db } from "../../../../../firebase";
-
-import VideoForm from "../../../../../components/editCourseContent/EditTimestamps";
+import { db } from "../../../firebase";
+import TextForm from "../../../components/editCourseContent/EditCourseTextContent";
+import QuizForm from "../../../components/editCourseContent/EditCourseQuizContent";
+import VideoForm from "../../../components/editCourseContent/EditCourseVideoContent";
 
 import {
   Button
@@ -27,7 +28,9 @@ export default function Page() {
 
   const router = useRouter();
 
-
+  const handleDropdown = (event) => {
+    setSelectedDropdown(event.target.value);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,9 +59,40 @@ export default function Page() {
     fetchData();
   }, [router.query]);
 
+  const handleSubmit = async (formData) => {
+    try {
+      // Add your logic here to handle form submission
+      // For example, you can add the form data to the Firebase Firestore
+      const { type } = formData;
+      const docRef = await addDoc(collection(db, "courseContent"), formData);
+      setCourse("");
+  
+      console.log("Form submitted successfully");
+      // Optionally, you can redirect to a different page or perform other actions after form submission
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      // Handle the error accordingly
+    }
+  };
 
   
   
+
+  let formComponent = null;
+
+  switch (courseContent.type) {
+    case 'text':
+      formComponent = <TextForm onSubmit={handleSubmit} documentId={documentId} type="Text" />;
+      break;
+    case 'video':
+      formComponent = <VideoForm onSubmit={handleSubmit} documentId={documentId} type="Video" />;
+      break;
+    case 'quiz':
+      formComponent = <QuizForm onSubmit={handleSubmit} documentId={documentId} type="Quiz" />;
+      break;
+    default:
+      formComponent = null;
+  }
 
 
   return (
@@ -67,7 +101,7 @@ export default function Page() {
       <h1>Currenly editing: <strong>{courseContent.title}</strong></h1>
         
 
-      <VideoForm documentId={documentId} type="Video" />
+        {formComponent}
       
     </>
   );
