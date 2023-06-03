@@ -12,8 +12,8 @@ import Typography from "@mui/material/Typography";
 
 let textAreaValue = "";
 
-const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
-  console.log(courseCode);
+const AddCourseTextContent = ({ onSubmit, documentId, type }) => {
+  console.log(documentId);
   const [formData, setFormData] = useState({});
   const [textContent, setTextContent] = useState("");
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -21,10 +21,10 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
   const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
   useEffect(() => {
-    // Initialize the courseCode field with the value of courseCode
+    // Initialize the courseDocId field with the value of documentId
     setFormData((prevFormData) => ({
       ...prevFormData,
-      courseCode: courseCode,
+      courseDocId: documentId,
       type: "text",
     }));
     console.log(formData);
@@ -95,7 +95,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
   );
 
   return (
-    <form onSubmit={handleFormSubmit}>
+    <form className="form-lg" onSubmit={handleFormSubmit}>
       <label
         className="block text-white-700 text-lg font-bold mb-2"
         htmlFor="title"
@@ -104,7 +104,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
       </label>
       <input
         onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        className=""
         type="text"
         id="title"
         name="title"
@@ -114,23 +114,23 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
         className="block text-white-700 text-lg font-bold mb-2 mr-2 flex"
         htmlFor="contentOrder"
       >
-        Chapter
+        Chapter <InfoIcon
+        className="ml-2 text-grey-700"
+        aria-describedby={id}
+        variant="contained"
+        onClick={handleClick}
+      />
       </label>
 
       <input
         onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        className=""
         type="text"
         id="contentOrder"
         name="contentOrder"
         required
       />
-      <InfoIcon
-        className="ml-2"
-        aria-describedby={id}
-        variant="contained"
-        onClick={handleClick}
-      />
+     
 
       <Popover
         id={id}
@@ -162,7 +162,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
       </label>
       <input
         onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        className=""
         type="datetime-local"
         name="due"
       />
@@ -174,7 +174,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
       </label>
       <input
         onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        className=""
         type="datetime-local"
         name="open"
       />
@@ -187,7 +187,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
       </label>
       <input
         onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        className=""
         type="datetime-local"
         name="close"
       />
@@ -200,7 +200,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
 
       {quill}
       <div className="mt-5">
-        <Button variant="contained" type="submit">
+        <Button variant="contained" type="submit" className="btn">
           Submit
         </Button>
       </div>

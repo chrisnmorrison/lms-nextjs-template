@@ -5,10 +5,13 @@ import {
   doc,
   setDoc,
   deleteField,
+  deleteDoc,
   getDoc,
   addDoc,
   collection,
 } from "firebase/firestore";
+import { startCase } from "lodash";
+
 import { db } from "../firebase";
 import useFetchCourses from "../hooks/fetchCourses";
 import { Link } from "@mui/material";
@@ -26,27 +29,36 @@ export default function UserDashboard() {
   const handleDelete = async (courseKey) => {
     console.log(courseKey);
     try {
-      // Get a reference to the document to be deleted
-      const courseDocRef = doc(db, "courses", courseKey);
+      // Display a confirmation alert to the user
+      const confirmed = window.confirm("Are you sure you want to delete this course?\n\nDeleting a course will move it to Archived Courses. You can restore it from there if you need to.");
+  
+      // If the user confirms the deletion, proceed with the deletion logic
+      if (confirmed) {
+        // Get a reference to the document to be deleted
+        const courseDocRef = doc(db, "courses", courseKey);
+  
+        // Get the data of the document before deleting it
+        const courseSnapshot = await getDoc(courseDocRef);
+        const courseData = courseSnapshot.data();
 
-      // Get the data of the document before deleting it
-      const courseSnapshot = await getDoc(courseDocRef);
-      const courseData = courseSnapshot.data();
-
-      // Delete the document from the current collection
-      await deleteDoc(courseDocRef);
-
-      // Add the document to the archivedCourses collection
-      const archivedCoursesCollection = collection(db, "archivedCourses");
-      await addDoc(archivedCoursesCollection, courseData);
-
-      // Perform any additional actions after successful deletion
-      console.log("Course moved to archives");
+        // Add the document to the archivedCourses collection
+        const archivedCoursesCollection = collection(db, "archivedCourses");
+        await addDoc(archivedCoursesCollection, courseData);
+  
+        // Delete the document from the current collection
+        await deleteDoc(courseDocRef);
+  
+        
+  
+        // Perform any additional actions after successful deletion
+        console.log("Course moved to archives");
+      }
     } catch (error) {
       console.error("Error deleting course:", error);
       // Handle error and display an error message to the user
     }
   };
+  
 
   return (
     <div className="w-full  text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
@@ -66,9 +78,12 @@ export default function UserDashboard() {
             <tr>
               <th>Name</th>
               <th>Code</th>
+              <th>Section</th>
               <th>Semester</th>
               <th>Year</th>
+              <th>Virtual</th>
               <th>Location</th>
+              <th>Day</th>
               <th>Time</th>
               <th>Actions</th>
             </tr>
@@ -77,19 +92,27 @@ export default function UserDashboard() {
             {courses.map((content) => (
               <tr key={content.name + content.code + content.semester + content.year}>
                 <td>{content.name}</td>
-                <td>{content.code}</td>
-                <td>{content.semester}</td>
+                <td>{content.courseCode}</td>
+                <td>{content.section}</td>
+                <td>{startCase(content.semester)}</td>
                 <td>{content.year}</td>
+                {content.isVirtual ? <td>Yes</td> : <td>No</td>}
                 <td>{content.location}</td>
+                <td>{content.dayOfWeek}</td>
                 <td>{content.time}</td>
                 <td className="flex">
-                  <Link href={`/courseContent/${content.code}` }>
-                    <Button sx={{ mr: 0.5 }} variant="contained">
+                  <Link href={`/courseContent/${content.id}` }>
+                    <Button  variant="contained" color="success">
                       Edit Content
                     </Button>
                   </Link>
+                  <Link href={`/editCourse/${content.id}` }>
+                    <Button sx={{ mr: 1, ml:1 }} variant="contained">
+                      Edit Course
+                    </Button>
+                  </Link>
                   <Button
-                    sx={{ ml: 0.5 }}
+                    
                     color="error"
                     variant="contained"
                     onClick={() => handleDelete(content.id)} // Pass the courseKey as an argument

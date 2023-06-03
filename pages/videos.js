@@ -3,9 +3,10 @@ import Image from 'next/image'
 import Login from '../components/Login'
 import Videos from '../components/Videos'
 import { useAuth } from '../context/AuthContext'
+import AccessDenied from "../components/AccessDenied";
 
 export default function Home() {
-  const { currentUser } = useAuth()
+  const { currentUser, isAdmin } = useAuth()
 
   return (
     < >
@@ -15,7 +16,8 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {!currentUser && <Login />}
-      {currentUser && <Videos/>}
+      {currentUser && isAdmin && <Videos/>}
+      {currentUser && !isAdmin && <AccessDenied/>}
     </>
   )
 }

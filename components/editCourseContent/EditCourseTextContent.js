@@ -1,30 +1,33 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@mui/material";
-import FormHtmlEditor from "./FormHtmlEditor";
 import "react-quill/dist/quill.snow.css";
-import ReactQuill from "react-quill";
+//import ReactQuill from "react-quill";
 import dynamic from "next/dynamic";
 import InfoIcon from "@mui/icons-material/Info";
 import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
 
+let textAreaValue = "";
+
 const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
-  console.log(courseCode)
+  console.log(courseCode);
   const [formData, setFormData] = useState({});
   const [textContent, setTextContent] = useState("");
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const editorRef = useRef(null);
+  const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
   useEffect(() => {
     // Initialize the courseCode field with the value of courseCode
     setFormData((prevFormData) => ({
       ...prevFormData,
       courseCode: courseCode,
-      type: "text"
+      type: "text",
     }));
-    console.log(formData)
+    console.log(formData);
   }, []);
 
   const handleClick = (event) => {
@@ -38,23 +41,27 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
 
-
   const handleTextContentChange = (value) => {
+    console.log(value);
+    textAreaValue = value;
     setFormData((prevFormData) => ({
       ...prevFormData,
       textContent: value,
     }));
-    setTextContent(value);
-    console.log(textContent)
+    const editorElement = document.querySelector(".ql-editor");
+    const htmlContent = editorElement.innerHTML;
+    setTextContent(htmlContent);
+    console.log(formData);
   };
 
   const handleFormSubmit = (event) => {
-    console.log(type)
     event.preventDefault();
+    const editorElement = document.querySelector(".ql-editor");
+    const htmlContent = editorElement.innerHTML;
+    console.log(htmlContent);
     setFormData((prevFormData) => ({
       ...prevFormData,
-      textContent: textContent,
-    
+      textContent: htmlContent,
     }));
     const jsonData = JSON.stringify(formData);
 
@@ -64,6 +71,9 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
   };
 
   const handleInputChange = (event) => {
+    const editorElement = document.querySelector(".ql-editor");
+    const htmlContent = editorElement.innerHTML;
+    setTextContent(htmlContent);
     const { name, value } = event.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -71,17 +81,30 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
     }));
     console.log(formData);
   };
- 
+
+  const quill = React.useMemo(
+    () => (
+      <ReactQuill
+        ref={editorRef}
+        theme="snow"
+        value={textContent}
+        onChange={handleTextContentChange}
+      />
+    ),
+    []
+  );
+
   return (
-    <form onSubmit={handleFormSubmit}>
+    <form className="form-lg" onSubmit={handleFormSubmit}>
       <label
         className="block text-white-700 text-lg font-bold mb-2"
         htmlFor="title"
       >
         Title
       </label>
-      <input  onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      <input
+        onChange={handleInputChange}
+        className=""
         type="text"
         id="title"
         name="title"
@@ -91,17 +114,19 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
         className="block text-white-700 text-lg font-bold mb-2 mr-2 flex"
         htmlFor="contentOrder"
       >
-       Chapter
+        Chapter
       </label>
 
-      <input  onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      <input
+        onChange={handleInputChange}
+        className=""
         type="text"
         id="contentOrder"
         name="contentOrder"
         required
       />
-      <InfoIcon className="ml-2"
+      <InfoIcon
+        className="ml-2"
         aria-describedby={id}
         variant="contained"
         onClick={handleClick}
@@ -117,7 +142,17 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
           horizontal: "left",
         }}
       >
-        <Typography sx={{ p: 2 }}><p>The numerical order that content is displayed in the app, similar to book chapters.</p> <p>For example, these numberings would be displayed in order from smallest to largest:</p> <p>1.0, 1.1, 1.2, 2.0, 3.0, 3.1, etc.</p></Typography>
+        <Typography sx={{ p: 2 }}>
+          <p>
+            The numerical order that content is displayed in the app, similar to
+            book chapters.
+          </p>{" "}
+          <p>
+            For example, these numberings would be displayed in order from
+            smallest to largest:
+          </p>{" "}
+          <p>1.0, 1.1, 1.2, 2.0, 3.0, 3.1, etc.</p>
+        </Typography>
       </Popover>
       <label
         className="block text-white-700 text-lg font-bold mb-2"
@@ -125,31 +160,34 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
       >
         Due Date/Time
       </label>
-      <input  onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      <input
+        onChange={handleInputChange}
+        className=""
         type="datetime-local"
         name="due"
       />
-       <label
+      <label
         className="block text-white-700 text-lg font-bold mb-2"
         htmlFor="open"
       >
         App Users can see this content at the following date and time:
       </label>
-      <input  onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      <input
+        onChange={handleInputChange}
+        className=""
         type="datetime-local"
         name="open"
       />
-       <label
+      <label
         className="block text-white-700 text-lg font-bold mb-2"
         htmlFor="close"
       >
-        At the following date and time, app users will no longer have access to this content:
-
+        At the following date and time, app users will no longer have access to
+        this content:
       </label>
-      <input  onChange={handleInputChange}
-        className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      <input
+        onChange={handleInputChange}
+        className=""
         type="datetime-local"
         name="close"
       />
@@ -160,11 +198,11 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
         Text Content
       </label>
 
-      <ReactQuill theme="snow" value={textContent} onChange={handleTextContentChange} />
+      {quill}
       <div className="mt-5">
-          <Button variant="contained" type="submit">
-            Submit
-          </Button>
+        <Button variant="contained" type="submit" className="btn">
+          Submit
+        </Button>
       </div>
     </form>
   );

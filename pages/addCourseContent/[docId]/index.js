@@ -15,10 +15,6 @@ import TextForm from "../../../components/addCourseContent/AddCourseTextContent"
 import QuizForm from "../../../components/addCourseContent/AddCourseQuizContent";
 import VideoForm from "../../../components/addCourseContent/AddCourseVideoContent";
 
-import {
-  Button
-} from "@mui/material";
-import Link from "next/link";
 
 export default function Page() {
   const [documentId, setDocumentId] = useState(null);
@@ -26,10 +22,9 @@ export default function Page() {
   const [course, setCourse] = useState("");
   const [courseContent, setCourseContent] = useState([]);
   const [selectedDropdown, setSelectedDropdown] = useState("");
-  const { name, code } = data || {};
-
+ 
   const router = useRouter();
-
+ const docId = router.query.docId;
   const handleDropdown = (event) => {
     setSelectedDropdown(event.target.value);
   };
@@ -39,56 +34,50 @@ export default function Page() {
       // Add your logic here to handle form submission
       // For example, you can add the form data to the Firebase Firestore
       const { type } = formData;
-      const docRef = await addDoc(collection(db, "courseContent"), formData);
+      await addDoc(collection(db, "courseContent"), formData);
       setCourse("");
   
       console.log("Form submitted successfully");
-      // Optionally, you can redirect to a different page or perform other actions after form submission
+      router.push(`/courseContent/${docId}`);
     } catch (error) {
       console.error("Error submitting form:", error);
       // Handle the error accordingly
     }
+
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      const { courseCode } = router.query;
-      setCourse(courseCode);
-
       try {
-        const courseContentCollection = collection(db, "courseContent");
-        const q = query(
-          courseContentCollection,
-          where("courseCode", "==", courseCode)
-        );
-        const querySnapshot = await getDocs(q);
-
-        const courseContentData = [];
-        querySnapshot.forEach((doc) => {
-          courseContentData.push(doc.data());
-        });
-
-        setCourseContent(courseContentData);
+        const docRef = doc(db, "courses", docId);
+        console.log(docId);
+  
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setData(docSnap.data());
+          console.log("Document data:", docSnap.data());
+        }
       } catch (error) {
         console.error("Error retrieving course content:", error);
         throw error;
       }
     };
-
+  
     fetchData();
-  }, [router.query]);
+  }, [docId]); // Include docId in the dependency array
+  
 
   let formComponent = null;
 
   switch (selectedDropdown) {
     case 'text':
-      formComponent = <TextForm onSubmit={handleSubmit} documentId={documentId} courseCode={course} type="Text" />;
+      formComponent = <TextForm onSubmit={handleSubmit} documentId={docId}  type="Text" />;
       break;
     case 'video':
-      formComponent = <VideoForm onSubmit={handleSubmit} documentId={documentId} courseCode={course} type="Video" />;
+      formComponent = <VideoForm onSubmit={handleSubmit} documentId={docId}  type="Video" />;
       break;
     case 'quiz':
-      formComponent = <QuizForm onSubmit={handleSubmit} documentId={documentId} courseCode={course} type="Quiz" />;
+      formComponent = <QuizForm onSubmit={handleSubmit} documentId={docId} type="Quiz" />;
       break;
     default:
       formComponent = null;
@@ -98,16 +87,14 @@ export default function Page() {
   return (
     <>
       {/* <p>Course Code: {router.query.id}</p> */}
-      <h1>Adding New Content for Course: <strong>{course}</strong></h1>
-      <div className="">
-        <label htmlFor="options">Select an option:</label>
+      <h1>Adding New Content for Course: {data ? <strong>{data.name} ({data.courseCode}{data.section})</strong> : <span>Loading...</span>}</h1>      <div className="">
+        <label className="text-white" htmlFor="options">Select an option:</label>
       <select id="options" defaultValue={selectedDropdown} onChange={handleDropdown} className="px-1 py-2 ml-2">
         <option value="" disabled >-- Select an Option --</option>
         <option value="text">Text</option>
         <option value="video">Video</option>
         <option value="quiz">Quiz</option>
       </select>
-      <p>Selected option: {selectedDropdown}</p>
        
    
         {formComponent}

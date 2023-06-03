@@ -17,6 +17,7 @@ import {
 import { db } from "../../../firebase";
 import useFetchCourses from "../../../hooks/fetchCourses";
 import { Button } from "@mui/material";
+import { startCase } from "lodash";
 import Link from "next/link";
 
 export default function Page() {
@@ -24,20 +25,20 @@ export default function Page() {
   const [data, setData] = useState(null);
   const [course, setCourse] = useState("");
   const [courseContent, setCourseContent] = useState([]);
-  const { name, code } = data || {};
 
   const router = useRouter();
+  const docId  = router.query.docId;
+ 
 
   useEffect(() => {
     const fetchData = async () => {
-      const { courseCode } = router.query;
-      setCourse(courseCode);
+     
 
       try {
         const courseContentCollection = collection(db, "courseContent");
         const q = query(
           courseContentCollection,
-          where("courseCode", "==", courseCode)
+          where("courseDocId", "==", docId)
         );
         const querySnapshot = await getDocs(q);
 
@@ -57,44 +58,45 @@ export default function Page() {
   }, [router.query]);
 
   const handleDelete = async (contentId) => {
-
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this content?\n\nDeleting content will move it to Archived Course Content."
     );
     if (confirmDelete) {
-    try {
-      // Get a reference to the document to be deleted
-      const courseDocRef = doc(db, "courseContent", contentId);
+      try {
+        // Get a reference to the document to be deleted
+        const courseDocRef = doc(db, "courseContent", contentId);
 
-      // Get the data of the document before deleting it
-      const courseSnapshot = await getDoc(courseDocRef);
-      const courseData = courseSnapshot.data();
+        // Get the data of the document before deleting it
+        const courseSnapshot = await getDoc(courseDocRef);
+        const courseData = courseSnapshot.data();
 
-      // Add the document to the archivedCourses collection
-      const archivedContentCollection = collection(db, "archivedCourseContent");
-      await addDoc(archivedContentCollection, courseData);
+        // Add the document to the archivedCourses collection
+        const archivedContentCollection = collection(
+          db,
+          "archivedCourseContent"
+        );
+        await addDoc(archivedContentCollection, courseData);
 
-      // Delete the document from the current collection
-      await deleteDoc(courseDocRef);
+        // Delete the document from the current collection
+        await deleteDoc(courseDocRef);
 
-      setCourseContent((prevCourseContent) =>
-        prevCourseContent.filter((content) => content.id !== contentId)
-      );
+        setCourseContent((prevCourseContent) =>
+          prevCourseContent.filter((content) => content.id !== contentId)
+        );
 
-      // Perform any additional actions after successful deletion
-      console.log("Content moved to archives");
-      
-    } catch (error) {
-      console.error("Error deleting content:", error);
-      // Handle error and display an error message to the user
+        // Perform any additional actions after successful deletion
+        console.log("Content moved to archives");
+      } catch (error) {
+        console.error("Error deleting content:", error);
+        // Handle error and display an error message to the user
+      }
     }
-  }
-}
+  };
 
   return (
     <>
       {/* <p>Course Code: {router.query.id}</p> */}
-      <h1>Course ID: {course}</h1>
+      {/* <h1>Course ID: {course}</h1> */}
       <div className="">
         <table className="table-dark">
           <thead>
@@ -113,13 +115,21 @@ export default function Page() {
               <tr key={content.title}>
                 <td>{content.contentOrder}</td>
                 <td>{content.title}</td>
-                <td>{content.type}</td>
+                <td>{startCase(content.type)}</td>
                 <td>{content.open}</td>
                 <td>{content.due}</td>
                 <td>{content.close}</td>
                 <td className="flex">
-                  <Link href={{ pathname: `/editCourseContent/${content.id}` }}>
-                    <Button sx={{ mr: 0.5 }} variant="contained">
+                  {content.type == "video" ? (
+                    <Link href={`${course}/editTimestamps/${content.id}`}>
+                      <Button sx={{ mr: 0.5, ml: 0.5 }} variant="contained" color='success'>
+                        Edit Video Questions
+                      </Button>
+                    </Link>
+                  ) : null}
+
+                  <Link href={`${course}/editCourseContent/${content.id}`}>
+                    <Button sx={{ mr: 0.5, ml: 0.5 }} variant="contained">
                       Edit Content
                     </Button>
                   </Link>
@@ -138,7 +148,7 @@ export default function Page() {
         </table>
 
         <div className="mt-5">
-          <Link href={`/addCourseContent/${course}`}>
+          <Link href={`/addCourseContent/${docId}`}>
             {" "}
             <Button variant="contained" type="submit">
               Add New Content
