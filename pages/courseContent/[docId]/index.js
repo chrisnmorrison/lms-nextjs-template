@@ -32,8 +32,6 @@ export default function Page() {
 
   useEffect(() => {
     const fetchData = async () => {
-     
-
       try {
         const courseContentCollection = collection(db, "courseContent");
         const q = query(
@@ -55,7 +53,7 @@ export default function Page() {
     };
 
     fetchData();
-  }, [router.query]);
+  }, [docId]);
 
   const handleDelete = async (contentId) => {
     const confirmDelete = window.confirm(
