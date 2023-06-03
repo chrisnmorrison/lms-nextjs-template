@@ -67,7 +67,7 @@ export default function Page() {
     };
   
     fetchData();
-  }, [router.query]);
+  }, [docId]);
   
 
   return (
