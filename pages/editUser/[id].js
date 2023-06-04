@@ -19,10 +19,11 @@ import { Button } from "@mui/material";
 
 // Before it was 'export default function Page({ data })' but then when getServerSideProps got converted into useEffect, the argument for the function started throwing an error,
 //Parsing error: Identifier 'data' has already been declared.
-//Since we are using a state of data in conjunction with useEffect, it made sense to get rid of data being rendered as an argument for the function 
+//Since we are using a state of data in conjunction with useEffect, it made sense to get rid of data being rendered as an argument for the function
 export default function Page() {
   const [user, setUser] = useState([]);
   const [data, setData] = useState(null);
+  const [isLoading, setLoading] = useState(false);
   const { title, userUrl } = document;
 
   const router = useRouter();
@@ -60,6 +61,7 @@ export default function Page() {
   // Here getServerSideProps converted into useEffect
   //Also moved it to inside the function
   useEffect(() => {
+    setLoading(true);
     const fetchData = async () => {
       try {
         const usersCollection = collection(db, "users");
@@ -81,6 +83,8 @@ export default function Page() {
 
     fetchData();
   }, [id]);
+  if (isLoading) return <p>Loading...</p>;
+  if (!data) return <p>No profile data</p>;
 
   return (
     <>
