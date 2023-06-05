@@ -14,35 +14,56 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../../firebase";
-import useFetchCourses from "../../hooks/fetchCourses";
 import { Button } from "@mui/material";
 
-// Before it was 'export default function Page({ data })' but then when getServerSideProps got converted into useEffect, the argument for the function started throwing an error,
-//Parsing error: Identifier 'data' has already been declared.
-//Since we are using a state of data in conjunction with useEffect, it made sense to get rid of data being rendered as an argument for the function
+async function updateUserData(documentId, newTitle= null, newFirstName= null, newLastName= null, newEmailAddress = null) {
+  try {
+    const userRef = doc(db, 'users', documentId);
+    const dataToUpdate = {
+    };
+
+    if (newTitle !== null) {
+      dataToUpdate.title = newTitle;
+    }
+
+    if (newEmailAddress !== null) {
+      dataToUpdate.email = newEmailAddress;
+    }
+    if (newFirstName !== null) {
+      dataToUpdate.firstName = newFirstName;
+    }
+    if (newLastName !== null) {
+      dataToUpdate.lastName = newLastName;
+    }
+    await updateDoc(userRef, dataToUpdate);
+    console.log('User data updated successfully');
+  } catch (error) {
+    console.error('Error updating user data:', error);
+  }
+}
+
+
 export default function Page() {
   const [user, setUser] = useState([]);
   const [data, setData] = useState(null);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [userTitle, setUserTitle] = useState("");
   const [isLoading, setLoading] = useState(false);
   const { title, userUrl } = document;
 
   const router = useRouter();
   const { id } = router.query;
-
+  // Handles the submit event on form submit.
   const handleSubmit = async (event) => {
-    event.preventDefault();
+    event.preventDefault(); // Stop the form from submitting and refreshing the page.
 
-    const updatedUserTimestamps = [];
-    for (let i = 0; i < user.length; i++) {
-      const timestamp = event.target[`userTimestamp${i}`].value;
-      updatedUserTimestamps.push(timestamp);
-    }
-
+    // Get data from the form.
     const updatedDocument = {
-      name: event.target.userName.value,
-      code: event.target.userCode.value,
-      description: event.target.userDescription.value,
-      userTimestamps: updatedUserTimestamps,
+      title: event.target.firstName.value,
+      first: event.target.firstName.value,
+      last: event.target.lastName.value,
     };
 
     const docToUpdate = doc(db, "userTest", id);
@@ -54,12 +75,6 @@ export default function Page() {
     router.push("/users");
   };
 
-  const addUserTimestamp = () => {
-    setUser([...user, ""]);
-  };
-
-  // Here getServerSideProps converted into useEffect
-  //Also moved it to inside the function
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
@@ -73,8 +88,8 @@ export default function Page() {
           const docData = document.data();
           newData = docData;
         }
-
         setData(newData);
+        setLoading(false);
       } catch (error) {
         console.error("Error retrieving document ID:", error);
         throw error;
@@ -83,35 +98,80 @@ export default function Page() {
 
     fetchData();
   }, [id]);
+
   if (isLoading) return <p>Loading...</p>;
   if (!data) return <p>No profile data</p>;
 
   return (
     <>
-      {/* <p>Course Code: {router.query.id}</p> */}
       <h1 className="lg-title mb-5">Edit User</h1>
+      <h2 className="md-title">
+        User:
+        <strong>
+          &nbsp;{data.firstName}&nbsp;{data.lastName}
+        </strong>
+      </h2>
       <form id="editCourseForm" onSubmit={handleSubmit}>
-        <div>
-          <p>
-            For user: <strong>{data.email}</strong>
-          </p>
-          <label
-            className="block text-white-700 text-lg font-bold mb-2"
-            htmlFor="userName"
-          >
-            User Email
-          </label>{" "}
-          <input
-            className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            type="text"
-            id="userName"
-            name="userName"
-            required
-            defaultValue={data.email}
-          />
-        </div>
-
-        <div></div>
+        <label
+          className="block text-white-700 text-lg font-bold mb-2"
+          htmlFor="title"
+        >
+          Title
+        </label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          placeholder="Title"
+          value={userTitle}
+          onChange={(e) => setUserTitle(e.target.value)}
+          required
+        />
+        <label
+          className="block text-white-700 text-lg font-bold mb-2"
+          htmlFor="first"
+        >
+          First Name
+        </label>
+        <input
+          type="text"
+          id="first"
+          name="first"
+          placeholder="First Name"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          required
+        />
+        <label
+          className="block text-white-700 text-lg font-bold mb-2"
+          htmlFor="last"
+        >
+          Last Name
+        </label>
+        <input
+          type="text"
+          id="last"
+          name="last"
+          placeholder="Last Name"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          required
+        />
+        <label
+          className="block text-white-700 text-lg font-bold mb-2"
+          htmlFor="email"
+        >
+          Email Address
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="example@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
         <div className="mt-5">
           <Button variant="contained" type="submit">
             Submit

@@ -14,6 +14,10 @@
   font-size: 2.6rem;
 }
 
+.md-title{
+  font-size: 2rem;
+}
+
 .italian-green{
   color: #009344;
 }
@@ -66,7 +70,8 @@ select{
 }
 
 label{
-  color: #2f3743;
+  /* color: #2f3743; *//*Hanieh - changed this because form labels werent showing with same colour background*/
+  color: #009344;
   font-size: 1.1rem;
   font-weight: 600;
   margin: 1.2rem 0 .6rem 0;
