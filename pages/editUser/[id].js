@@ -25,26 +25,24 @@ async function updateUserData(
 ) {
   try {
     const userRef = doc(db, "users", documentId);
-    const dataToUpdate = {};
+    const docSnapshot = await getDoc(userRef);
+    
+    if (docSnapshot.exists()) {
+      const existingData = docSnapshot.data();
+      const dataToUpdate = {
+        title: newTitle|| existingData.title,
+        firstName: newFirstName|| existingData.firstName,
+        lastName: newLastName|| existingData.lastName,
+        email: newEmailAddress || existingData.email,
+      };
 
-    if (newTitle !== null) {
-      dataToUpdate.title = newTitle;
+      await updateDoc(userRef, dataToUpdate);
+      console.log('User data updated successfully');
+    } else {
+      console.error('User document does not exist');
     }
-
-    if (newEmailAddress !== null) {
-      dataToUpdate.email = newEmailAddress;
-    }
-    if (newFirstName !== null) {
-      dataToUpdate.firstName = newFirstName;
-    }
-    if (newLastName !== null) {
-      dataToUpdate.lastName = newLastName;
-    }
-
-    await updateDoc(userRef, dataToUpdate);
-    console.log("User data updated successfully");
   } catch (error) {
-    console.error("Error updating user data:", error);
+    console.error('Error updating user data:', error);
   }
 }
 
