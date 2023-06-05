@@ -16,11 +16,16 @@ import {
 import { db } from "../../firebase";
 import { Button } from "@mui/material";
 
-async function updateUserData(documentId, newTitle= null, newFirstName= null, newLastName= null, newEmailAddress = null) {
+async function updateUserData(
+  documentId,
+  newTitle = null,
+  newFirstName = null,
+  newLastName = null,
+  newEmailAddress = null
+) {
   try {
-    const userRef = doc(db, 'users', documentId);
-    const dataToUpdate = {
-    };
+    const userRef = doc(db, "users", documentId);
+    const dataToUpdate = {};
 
     if (newTitle !== null) {
       dataToUpdate.title = newTitle;
@@ -35,13 +40,13 @@ async function updateUserData(documentId, newTitle= null, newFirstName= null, ne
     if (newLastName !== null) {
       dataToUpdate.lastName = newLastName;
     }
+
     await updateDoc(userRef, dataToUpdate);
-    console.log('User data updated successfully');
+    console.log("User data updated successfully");
   } catch (error) {
-    console.error('Error updating user data:', error);
+    console.error("Error updating user data:", error);
   }
 }
-
 
 export default function Page() {
   const [user, setUser] = useState([]);
@@ -61,13 +66,15 @@ export default function Page() {
 
     // Get data from the form.
     const updatedDocument = {
-      title: event.target.firstName.value,
-      first: event.target.firstName.value,
-      last: event.target.lastName.value,
+      title: event.target.title.value,
+      first: event.target.first.value,
+      last: event.target.last.value,
+      email: event.target.email.value,
     };
 
-    const docToUpdate = doc(db, "userTest", id);
-    await updateDoc(docToUpdate, updatedDocument);
+    await updateUserData(id, userTitle, firstName, lastName, email); // Updates both name and email address
+    // const docToUpdate = doc(db, "userTest", id);
+    //await updateDoc(docToUpdate, updatedDocument);
 
     // Do something with the updated form values
     console.log(updatedDocument);
@@ -125,7 +132,7 @@ export default function Page() {
           placeholder="Title"
           value={userTitle}
           onChange={(e) => setUserTitle(e.target.value)}
-          required
+          //required
         />
         <label
           className="block text-white-700 text-lg font-bold mb-2"
@@ -140,7 +147,7 @@ export default function Page() {
           placeholder="First Name"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
-          required
+          //required
         />
         <label
           className="block text-white-700 text-lg font-bold mb-2"
@@ -155,7 +162,7 @@ export default function Page() {
           placeholder="Last Name"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
-          required
+          //required
         />
         <label
           className="block text-white-700 text-lg font-bold mb-2"
@@ -170,7 +177,7 @@ export default function Page() {
           placeholder="example@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          required
+          //required
         />
         <div className="mt-5">
           <Button variant="contained" type="submit">
