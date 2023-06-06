@@ -74,25 +74,46 @@ export default function UserDashboard() {
       <div className="current-users">
         {!loading && (
           <>
-            {users.map((user, i) => {
+            <table className="table-dark">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Student #</th>
+                  <th>Admin</th>
+                  <th>Email</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody> {users.map((user, i) => {
               return (
-                <UserCard
-                  handleEditUser={handleEditUser(i)}
-                  key={i}
-                  handleAddEdit={handleAddEdit}
-                  edit={edit}
-                  userKey={user}
-                  edittedValue={edittedValue}
-                  setEdittedValue={setEdittedValue}
-                  handleDelete={handleDelete}
-                >
-                  <h2 style={{ fontSize: "200%", marginBottom: ".5rem" }}>
-                    {user.name}
-                  </h2>
-                  <p>{user.email}</p>
-                </UserCard>
-              );
-            })}
+                <>
+                <tr key={i}></tr>
+                <td>{user.firstName} {user.lastName}</td>
+                <td>{user.studentNumber}</td>
+                <td>{user.isAdmin ? "✅" : "❌"}</td>
+                <td>{user.email}</td>
+                <td className="flex">
+                 
+
+                  <Link href={`/editUser/${user.id}`}>
+                    <Button sx={{ mr: 0.5, ml: 0.5 }} variant="contained">
+                      Edit User
+                    </Button>
+                  </Link>
+                  <Button
+                    sx={{ ml: 0.5 }}
+                    color="error"
+                    variant="contained"
+                    onClick={() => handleDelete(user.id)} // Pass the courseKey as an argument
+                  >
+                    Delete User
+                  </Button>
+                </td>
+              </> );
+             
+            })}</tbody>
+            </table>
+           
             <div className="mt-5">
               <Link
                 href="/AddUser"
@@ -108,6 +129,7 @@ export default function UserDashboard() {
         )}
       </div>
     </div>
+    
   );
 }
 
