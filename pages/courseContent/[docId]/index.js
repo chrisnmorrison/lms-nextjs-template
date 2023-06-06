@@ -137,7 +137,7 @@ export default function Page() {
                     variant="contained"
                     onClick={() => handleDelete(content.id)} // Pass the courseKey as an argument
                   >
-                    Delete Course
+                    Delete Content
                   </Button>
                 </td>
               </tr>
