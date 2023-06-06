@@ -105,14 +105,27 @@ export default function Page() {
     };
     setEnrollmentDate(new Date(event.target.value));
 
-    var updatedList = [...registeredCourses];
-    // Case 1 : The user checks the box
-    if (event.target.registeredCourses) {
-      updatedList = [...registeredCourses, event.target.value];
-    } else {
-      updatedList.splice(registeredCourses.indexOf(event.target.value), 1);
-    }
-    setRegisteredCourses(updatedList);
+    // var updatedList = [...registeredCourses];
+    // if (event.target.registeredCourses) {
+    //   updatedList = [...registeredCourses, event.target.value];
+    // } else {
+    //   updatedList.splice(registeredCourses.indexOf(event.target.value), 1);
+    // }
+    // setRegisteredCourses(updatedList);
+
+       // Destructuring
+       const { value, checked } = event.target;         
+       console.log(`${value} is ${checked}`);
+        
+       // Case 1 : The user checks the box
+       if (checked) {
+        setRegisteredCourses([...registeredCourses, event.target.value]);
+       }
+     
+       // Case 2  : The user unchecks the box
+       else {
+        setRegisteredCourses(registeredCourses.filter((event) => event !== value));
+       }
 
     await updateUserData(
       id,
@@ -297,8 +310,8 @@ export default function Page() {
           <input
             type="checkbox"
             name="registeredCourses"
-            value="ITA1113"
-            onChange={(e) => setRegisteredCourses(e.target.value)}
+            value={registeredCourses}
+            onChange={(e) => e.target.value}
           />
           <label
             className="block text-white-700 text-lg font-bold mb-2"
@@ -309,8 +322,8 @@ export default function Page() {
           <input
             type="checkbox"
             name="registeredCourses"
-            value="ITA1114"
-            onChange={(e) => setRegisteredCourses(e.target.value)}
+            value={registeredCourses}
+            onChange={(e) => e.target.value}
           />
           <label
             className="block text-white-700 text-lg font-bold mb-2"
@@ -321,8 +334,8 @@ export default function Page() {
           <input
             type="checkbox"
             name="registeredCourses"
-            value="ITA1911"
-            onChange={(e) => setRegisteredCourses(e.target.value)}
+            value={registeredCourses}
+            onChange={(e) => e.target.value}
           />
           <label
             className="block text-white-700 text-lg font-bold mb-2"
