@@ -29,11 +29,15 @@ export default function Page() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const docToUpdate = doc(db, "users", id);
-    await updateDoc(docToUpdate, formData);
+    const updatedFormData = {
+      ...formData,
+      registeredCourses: registeredCourses
+    };
 
-    // Do something with the updated form values
-    console.log(course);
+    const docToUpdate = doc(db, "users", id);
+    await updateDoc(docToUpdate, updatedFormData);
+
+    console.log(updatedFormData);
 
     router.push("/users");
   };
