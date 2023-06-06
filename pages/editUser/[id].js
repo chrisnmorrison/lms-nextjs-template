@@ -63,6 +63,7 @@ export default function Page() {
           newData = docData;
         }
         setFormData(newData);
+        setRegisteredCourses(newData.registeredCourses);
         setLoading(false);
       } catch (error) {
         console.error("Error retrieving document ID:", error);
@@ -217,6 +218,7 @@ export default function Page() {
               type="checkbox"
               name="registeredCourses"
               value="ITA1113"
+              checked={registeredCourses.includes("ITA1113")}
               onChange={handleRegisteredCourseChange}
             />
             <label className="ml-2" htmlFor="ITA1113">
@@ -228,6 +230,7 @@ export default function Page() {
               type="checkbox"
               name="registeredCourses"
               value="ITA1114"
+              checked={registeredCourses.includes("ITA1114")}
               onChange={handleRegisteredCourseChange}
             />
             <label className="ml-2" htmlFor="ITA1114">
@@ -239,6 +242,7 @@ export default function Page() {
               type="checkbox"
               name="registeredCourses"
               value="ITA1911"
+              checked={registeredCourses.includes("ITA1911")}
               onChange={handleRegisteredCourseChange}
             />
             <label className="ml-2" htmlFor="ITA1911">
@@ -256,9 +260,9 @@ export default function Page() {
                 name="activeStudent"
                 value="true"
                 id="true"
-                checked={formData.activeStudent ? "checked" : null}
+                checked={formData.activeStudent}
                 onChange={(e) =>
-                  setFormData({ ...formData, activeStudent: e.target.value })
+                  setFormData({ ...formData, activeStudent: e.target.checked })
                 }
               />
               <label htmlFor="activeStudent">Yes</label>
@@ -274,9 +278,9 @@ export default function Page() {
                 name="admin"
                 value="true"
                 id="true"
-                checked={formData.isAdmin ? "checked" : null}
+                checked={formData.isAdmin}
                 onChange={(e) =>
-                  setFormData({ ...formData, isAdmin: e.target.value })
+                  setFormData({ ...formData, isAdmin: e.target.checked })
                 }
               />
               <label htmlFor="admin">Yes</label>
