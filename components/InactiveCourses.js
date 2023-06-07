@@ -10,7 +10,7 @@ import {
   collection,
 } from "firebase/firestore";
 import { db } from "../firebase";
-import useFetchCourses from "../hooks/fetchCourses";
+import useFetchCourses from "../hooks/fetchArchivedCourses";
 import { Link } from "@mui/material";
 import { Button } from "@mui/material";
 
@@ -114,12 +114,12 @@ export default function UserDashboard() {
                 
               </Link>
               <Link
-                href="/InactiveCourses"
+                href="/ArchivedCourses"
                 underline="hover"
                 style={{ fontSize: "200%", marginBottom: ".5rem", marginLeft: "1rem" }}
               >
                 <Button size="large" variant="outlined" color='secondary'>
-                  View Inactive Courses
+                  View Archived Courses
                 </Button>
                 
               </Link>
