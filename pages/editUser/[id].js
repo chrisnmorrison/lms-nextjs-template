@@ -14,65 +14,74 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../../firebase";
-import useFetchCourses from "../../hooks/fetchCourses";
 import { Button } from "@mui/material";
 
-// Before it was 'export default function Page({ data })' but then when getServerSideProps got converted into useEffect, the argument for the function started throwing an error,
-//Parsing error: Identifier 'data' has already been declared.
-//Since we are using a state of data in conjunction with useEffect, it made sense to get rid of data being rendered as an argument for the function 
 export default function Page() {
-  const [user, setUser] = useState([]);
-  const [data, setData] = useState(null);
-  const { title, userUrl } = document;
+  const options = ["ITA 1113", "ITA 1114", "ITA 1911"];
 
+  const [formData, setFormData] = useState({});
+  const [registeredCourses, setRegisteredCourses] = useState([]);
+  const [activeCourses, setActiveCourses] = useState([]);
+  const [isLoading, setLoading] = useState(false);
   const router = useRouter();
   const { id } = router.query;
 
+  // Handles the submit event on form submit.
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const updatedUserTimestamps = [];
-    for (let i = 0; i < user.length; i++) {
-      const timestamp = event.target[`userTimestamp${i}`].value;
-      updatedUserTimestamps.push(timestamp);
-    }
-
-    const updatedDocument = {
-      name: event.target.userName.value,
-      code: event.target.userCode.value,
-      description: event.target.userDescription.value,
-      userTimestamps: updatedUserTimestamps,
+    const updatedFormData = {
+      ...formData,
+      registeredCourses: registeredCourses
     };
 
-    const docToUpdate = doc(db, "userTest", id);
-    await updateDoc(docToUpdate, updatedDocument);
+    const docToUpdate = doc(db, "users", id);
+    await updateDoc(docToUpdate, updatedFormData);
 
-    // Do something with the updated form values
-    console.log(updatedDocument);
+    console.log(updatedFormData);
 
     router.push("/users");
   };
 
-  const addUserTimestamp = () => {
-    setUser([...user, ""]);
-  };
-
-  // Here getServerSideProps converted into useEffect
-  //Also moved it to inside the function
+  //write to console whenever formData changes
   useEffect(() => {
+    console.log(formData);
+    console.log(registeredCourses);
+  }, [formData, registeredCourses]);
+
+  //only run once when the page loads
+  useEffect(() => {
+    setLoading(true);
     const fetchData = async () => {
       try {
         const usersCollection = collection(db, "users");
         const documentRef = doc(usersCollection, id);
         const document = await getDoc(documentRef);
 
+        const coursesCollection = collection(db, "courses");
+        const activeCoursesQuery = query(coursesCollection, where("activeCourse", "==", true));
+        const coursesSnapshot = await getDocs(activeCoursesQuery);
+        const courseData = [];
+        coursesSnapshot.forEach((doc) => {
+          courseData.push({ id: doc.id, ...doc.data() });
+        });
+
+        setActiveCourses(courseData);
+        console.log(activeCourses)
+
         let newData = null;
         if (!document.empty) {
           const docData = document.data();
           newData = docData;
         }
+        setFormData(newData);
 
-        setData(newData);
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+         
+        }));
+        setRegisteredCourses(formData.registeredCourses);
+        setLoading(false);
       } catch (error) {
         console.error("Error retrieving document ID:", error);
         throw error;
@@ -82,32 +91,196 @@ export default function Page() {
     fetchData();
   }, [id]);
 
+  if (isLoading) return <p>Loading...</p>;
+  if (!formData) return <p>No profile data</p>;
+
+  const handleRegisteredCourseChange = (event) => {
+    const courseId = event.target.value;
+    const isChecked = event.target.checked;
+  
+    setRegisteredCourses((prevCourses) => {
+      if (isChecked) {
+        return prevCourses ? [...prevCourses, courseId] : [courseId];
+      } else {
+        return prevCourses ? prevCourses.filter((course) => course !== courseId) : [];
+      }
+    });
+  };
+  
+
   return (
     <>
-      {/* <p>Course Code: {router.query.id}</p> */}
       <h1 className="lg-title mb-5">Edit User</h1>
-      <form id="editCourseForm" onSubmit={handleSubmit}>
-        <div>
-          <p>
-            For user: <strong>{data.email}</strong>
-          </p>
-          <label
-            className="block text-white-700 text-lg font-bold mb-2"
-            htmlFor="userName"
-          >
-            User Email
-          </label>{" "}
+      <h2 className="md-title">
+        User:
+        <strong>
+          &nbsp;{formData.firstName}&nbsp;{formData.lastName}
+        </strong>
+      </h2>
+      <form className="form-lg" id="editCourseForm" onSubmit={handleSubmit}>
+        <label className="" htmlFor="title">
+          Title
+        </label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          placeholder="Title"
+          value={formData.userTitle}
+          onChange={(e) =>
+            setFormData({ ...formData, userTitle: e.target.value })
+          }
+          //required
+        />
+        <label className="" htmlFor="first">
+          First Name
+        </label>
+        <input
+          type="text"
+          id="first"
+          name="first"
+          placeholder="First Name"
+          value={formData.firstName}
+          onChange={(e) =>
+            setFormData({ ...formData, firstName: e.target.value })
+          }
+          //required
+        />
+        <label className="" htmlFor="last">
+          Last Name
+        </label>
+        <input
+          type="text"
+          id="last"
+          name="last"
+          placeholder="Last Name"
+          value={formData.lastName}
+          onChange={(e) =>
+            setFormData({ ...formData, lastName: e.target.value })
+          }
+          //required
+        />
+        <label className="" htmlFor="email">
+          Email Address
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="example@example.com"
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          //required
+        />
+        <label className="" htmlFor="department">
+          Department
+        </label>
+        <input
+          type="text"
+          id="department"
+          name="department"
+          placeholder="Department Name"
+          value={formData.department}
+          onChange={(e) =>
+            setFormData({ ...formData, department: e.target.value })
+          }
+          //required
+        />
+        <label className="" htmlFor="program">
+          Program
+        </label>
+        <input
+          type="text"
+          id="program"
+          name="program"
+          placeholder="Program Name"
+          value={formData.program}
+          onChange={(e) =>
+            setFormData({ ...formData, program: e.target.value })
+          }
+          //required
+        />
+        <label className="" htmlFor="studentNumber">
+          Student Number
+        </label>
+        <input
+          type="number"
+          id="studentNumber"
+          name="studentNumber"
+          placeholder="Student Number"
+          value={formData.studentNumber}
+          onChange={(e) =>
+            setFormData({ ...formData, studentNumber: e.target.value })
+          }
+          //required
+        />
+        <div className="date-picker-container">
+          <label className="mr-2" htmlFor="enrollmentDate">
+            Student&apos;s Enrolment Date:
+          </label>
           <input
-            className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            type="text"
-            id="userName"
-            name="userName"
-            required
-            defaultValue={data.email}
+            type="date"
+            value={formData.enrollmentDate}
+            onChange={(e) =>
+              setFormData({ ...formData, enrollmentDate: e.target.value })
+            }
           />
         </div>
+        <div className="flex flex-col text-left">
+          <label>Courses Registration</label>
+          {activeCourses.map((course, i) => (
+           
+    <div className="flex items-center" key={i}>
+      <input
+        type="checkbox"
+        name="registeredCourses"
+        value={course.id}
+        checked={registeredCourses ? registeredCourses.includes(course.id) : null}
+        onChange={handleRegisteredCourseChange}
+      />
+      <label className="ml-2">
+      {course.courseCode}{course.section} - {course.name}
+      </label>
+    </div>
+  ))}
+        </div>
 
-        <div></div>
+        <div className="mt-5">
+          <label className="">Active Student?</label>
+          <div className="radio-Btn-Container">
+            <div>
+              <input
+                type="checkbox"
+                name="activeStudent"
+                value="true"
+                id="true"
+                checked={formData.activeStudent}
+                onChange={(e) =>
+                  setFormData({ ...formData, activeStudent: e.target.checked })
+                }
+              />
+              <label htmlFor="activeStudent">Yes</label>
+            </div>
+          </div>
+        </div>
+        <div className="mt-5">
+          <label className="">Is this user an administrator?</label>
+          <div className="radio-Btn-Container">
+            <div>
+              <input
+                type="checkbox"
+                name="admin"
+                value="true"
+                id="true"
+                checked={formData.isAdmin}
+                onChange={(e) =>
+                  setFormData({ ...formData, isAdmin: e.target.checked })
+                }
+              />
+              <label htmlFor="admin">Yes</label>
+            </div>
+          </div>
+        </div>
         <div className="mt-5">
           <Button variant="contained" type="submit">
             Submit
