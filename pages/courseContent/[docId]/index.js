@@ -27,8 +27,7 @@ export default function Page() {
   const [courseContent, setCourseContent] = useState([]);
 
   const router = useRouter();
-  const docId  = router.query.docId;
- 
+  const docId = router.query.docId;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,6 +90,29 @@ export default function Page() {
     }
   };
 
+  const formatDate = (dateString) => {
+    const timestamp = Date.parse(dateString);
+
+    // if is invalid
+    if (isNaN(timestamp)) {
+      return "Invalid date format";
+    }
+
+    const date = new Date(dateString);
+
+    // Extract the date components
+    const year = date.getFullYear();
+    const month = date.toLocaleString("default", { month: "long" });
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+
+    // Format the date string
+    const formattedDate = `${month} ${day}, ${year} ${hours}:${minutes}`;
+
+    return formattedDate;
+  };
+
   return (
     <>
       {/* <p>Course Code: {router.query.id}</p> */}
@@ -102,9 +124,7 @@ export default function Page() {
               <th>Content Order</th>
               <th>Title</th>
               <th>Type</th>
-              <th>Opens At</th>
               <th>Due at</th>
-              <th>Closes at</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -114,13 +134,15 @@ export default function Page() {
                 <td>{content.contentOrder}</td>
                 <td>{content.title}</td>
                 <td>{startCase(content.type)}</td>
-                <td>{content.open}</td>
-                <td>{content.due}</td>
-                <td>{content.close}</td>
+                <td>{formatDate(content.due)}</td>
                 <td className="flex">
                   {content.type == "video" ? (
                     <Link href={`${course}/editTimestamps/${content.id}`}>
-                      <Button sx={{ mr: 0.5, ml: 0.5 }} variant="contained" color='success'>
+                      <Button
+                        sx={{ mr: 0.5, ml: 0.5 }}
+                        variant="contained"
+                        color="success"
+                      >
                         Edit Video Questions
                       </Button>
                     </Link>

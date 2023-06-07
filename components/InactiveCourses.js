@@ -103,26 +103,7 @@ export default function UserDashboard() {
         </table>
            
             <div className="mt-5">
-              <Link
-                href="/AddCourse"
-                underline="hover"
-                style={{ fontSize: "200%", marginBottom: ".5rem" }}
-              >
-                <Button size="large" variant="outlined">
-                  Add New Course
-                </Button>
-                
-              </Link>
-              <Link
-                href="/ArchivedCourses"
-                underline="hover"
-                style={{ fontSize: "200%", marginBottom: ".5rem", marginLeft: "1rem" }}
-              >
-                <Button size="large" variant="outlined" color='secondary'>
-                  View Archived Courses
-                </Button>
-                
-              </Link>
+             
             </div>
           </>
         )}

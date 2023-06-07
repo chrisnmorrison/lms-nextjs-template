@@ -24,32 +24,31 @@ export default function UserDashboard() {
   const [edittedValue, setEdittedValue] = useState("");
 
   const { courses, isLoading, isError } = useFetchCourses();
- 
 
   const handleDelete = async (courseKey) => {
     console.log(courseKey);
     try {
       // Display a confirmation alert to the user
-      const confirmed = window.confirm("Are you sure you want to delete this course?\n\nDeleting a course will move it to Archived Courses. You can restore it from there if you need to.");
-  
+      const confirmed = window.confirm(
+        "Are you sure you want to delete this course?\n\nDeleting a course will move it to Archived Courses. You can restore it from there if you need to."
+      );
+
       // If the user confirms the deletion, proceed with the deletion logic
       if (confirmed) {
         // Get a reference to the document to be deleted
         const courseDocRef = doc(db, "courses", courseKey);
-  
+
         // Get the data of the document before deleting it
         const courseSnapshot = await getDoc(courseDocRef);
         const courseData = courseSnapshot.data();
 
         // Add the document to the archivedCourses collection
         const archivedCoursesCollection = collection(db, "archivedCourses");
-        await addDoc(archivedCoursesCollection, courseData);
-  
+        await setDoc(doc(archivedCoursesCollection, courseKey), courseData);
+
         // Delete the document from the current collection
         await deleteDoc(courseDocRef);
-  
-        
-  
+
         // Perform any additional actions after successful deletion
         console.log("Course moved to archives");
       }
@@ -58,7 +57,6 @@ export default function UserDashboard() {
       // Handle error and display an error message to the user
     }
   };
-  
 
   return (
     <div className="w-full  text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
@@ -74,57 +72,63 @@ export default function UserDashboard() {
         {!isLoading && (
           <>
             <table className="table-dark">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Code</th>
-              <th>Section</th>
-              <th>Semester</th>
-              <th>Year</th>
-              <th>Virtual</th>
-              <th>Location</th>
-              <th>Day</th>
-              <th>Time</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {courses.map((content) => (
-              <tr key={content.name + content.code + content.semester + content.year}>
-                <td>{content.name}</td>
-                <td>{content.courseCode}</td>
-                <td>{content.section}</td>
-                <td>{startCase(content.semester)}</td>
-                <td>{content.year}</td>
-                {content.isVirtual ? <td>Yes</td> : <td>No</td>}
-                <td>{content.location}</td>
-                <td>{content.dayOfWeek}</td>
-                <td>{content.time}</td>
-                <td className="flex">
-                  <Link href={`/courseContent/${content.id}` }>
-                    <Button  variant="contained" color="success">
-                      Edit Content
-                    </Button>
-                  </Link>
-                  <Link href={`/editCourse/${content.id}` }>
-                    <Button sx={{ mr: 1, ml:1 }} variant="contained">
-                      Edit Course
-                    </Button>
-                  </Link>
-                  <Button
-                    
-                    color="error"
-                    variant="contained"
-                    onClick={() => handleDelete(content.id)} // Pass the courseKey as an argument
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Code</th>
+                  <th>Section</th>
+                  {/* <th>Semester</th>
+                  <th>Year</th> */}
+                  <th>Virtual</th>
+                  <th>Location</th>
+                  <th>Day</th>
+                  <th>Time</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {courses.map((content) => (
+                  <tr
+                    key={
+                      content.name +
+                      content.code +
+                      content.semester +
+                      content.year
+                    }
                   >
-                    Delete Course
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-           
+                    <td>{content.name}</td>
+                    <td>{content.courseCode}</td>
+                    <td>{content.section}</td>
+                    {/* <td>{startCase(content.semester)}</td>
+                    <td>{content.year}</td> */}
+                    {content.isVirtual ? <td>Yes</td> : <td>No</td>}
+                    <td>{content.location}</td>
+                    <td>{content.dayOfWeek}</td>
+                    <td>{content.time}</td>
+                    <td className="flex">
+                      <Link href={`/courseContent/${content.id}`}>
+                        <Button variant="contained" color="success">
+                          Edit Content
+                        </Button>
+                      </Link>
+                      <Link href={`/editCourse/${content.id}`}>
+                        <Button sx={{ mr: 1, ml: 1 }} variant="contained">
+                          Edit Course
+                        </Button>
+                      </Link>
+                      <Button
+                        color="error"
+                        variant="contained"
+                        onClick={() => handleDelete(content.id)} // Pass the courseKey as an argument
+                      >
+                        Delete Course
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
             <div className="mt-5">
               <Link
                 href="/AddCourse"
@@ -134,17 +138,19 @@ export default function UserDashboard() {
                 <Button size="large" variant="outlined">
                   Add New Course
                 </Button>
-                
               </Link>
               <Link
                 href="/InactiveCourses"
                 underline="hover"
-                style={{ fontSize: "200%", marginBottom: ".5rem", marginLeft: "1rem" }}
+                style={{
+                  fontSize: "200%",
+                  marginBottom: ".5rem",
+                  marginLeft: "1rem",
+                }}
               >
-                <Button size="large" variant="outlined" color='secondary'>
+                <Button size="large" variant="outlined" color="secondary">
                   View Inactive Courses
                 </Button>
-                
               </Link>
             </div>
           </>
