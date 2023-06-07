@@ -22,6 +22,7 @@ export default function Page() {
   const [formData, setFormData] = useState({});
   const [registeredCourses, setRegisteredCourses] = useState([]);
   const [activeCourses, setActiveCourses] = useState([]);
+  const [isFirstEffectDone, setIsFirstEffectDone] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const router = useRouter();
   const { id } = router.query;
@@ -67,7 +68,9 @@ export default function Page() {
         });
 
         setActiveCourses(courseData);
+       
         console.log(activeCourses)
+        console.log(registeredCourses)
 
         let newData = null;
         if (!document.empty) {
@@ -75,12 +78,13 @@ export default function Page() {
           newData = docData;
         }
         setFormData(newData);
-
-        setFormData((prevFormData) => ({
-          ...prevFormData,
+        
+        // setFormData((prevFormData) => ({
+        //   ...prevFormData,
          
-        }));
-        setRegisteredCourses(formData.registeredCourses);
+        // }));
+        console.log(formData.registeredCourses)
+        
         setLoading(false);
       } catch (error) {
         console.error("Error retrieving document ID:", error);
@@ -89,7 +93,17 @@ export default function Page() {
     };
 
     fetchData();
+    setRegisteredCourses(formData.registeredCourses);
+    setIsFirstEffectDone(true);
   }, [id]);
+
+  useEffect(() => {
+    // Second useEffect code that depends on the first useEffect
+  
+    if (isFirstEffectDone) {
+      setRegisteredCourses(formData.registeredCourses);
+    }
+  }, [isFirstEffectDone, formData.registeredCourses]);
 
   if (isLoading) return <p>Loading...</p>;
   if (!formData) return <p>No profile data</p>;
@@ -114,7 +128,7 @@ export default function Page() {
       <h2 className="md-title">
         User:
         <strong>
-          &nbsp;{formData.firstName}&nbsp;{formData.lastName}
+          {formData.firstName}&nbsp;{formData.lastName}&nbsp;{formData.email}
         </strong>
       </h2>
       <form className="form-lg" id="editCourseForm" onSubmit={handleSubmit}>
