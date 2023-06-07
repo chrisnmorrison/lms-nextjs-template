@@ -21,6 +21,7 @@ export default function Page() {
 
   const [formData, setFormData] = useState({});
   const [registeredCourses, setRegisteredCourses] = useState([]);
+  const [activeCourses, setActiveCourses] = useState([]);
   const [isLoading, setLoading] = useState(false);
   const router = useRouter();
   const { id } = router.query;
@@ -57,13 +58,29 @@ export default function Page() {
         const documentRef = doc(usersCollection, id);
         const document = await getDoc(documentRef);
 
+        const coursesCollection = collection(db, "courses");
+        const activeCoursesQuery = query(coursesCollection, where("activeCourse", "==", true));
+        const coursesSnapshot = await getDocs(activeCoursesQuery);
+        const courseData = [];
+        coursesSnapshot.forEach((doc) => {
+          courseData.push({ id: doc.id, ...doc.data() });
+        });
+
+        setActiveCourses(courseData);
+        console.log(activeCourses)
+
         let newData = null;
         if (!document.empty) {
           const docData = document.data();
           newData = docData;
         }
         setFormData(newData);
-        setRegisteredCourses(newData.registeredCourses);
+
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          registeredCourses: courseData.map((course) => course.id),
+        }));
+        setRegisteredCourses(formData.registeredCourses);
         setLoading(false);
       } catch (error) {
         console.error("Error retrieving document ID:", error);
@@ -213,42 +230,21 @@ export default function Page() {
         </div>
         <div className="flex flex-col text-left">
           <label>Courses Registration</label>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              name="registeredCourses"
-              value="ITA1113"
-              checked={registeredCourses.includes("ITA1113")}
-              onChange={handleRegisteredCourseChange}
-            />
-            <label className="ml-2" htmlFor="ITA1113">
-              ITA 1113
-            </label>
-          </div>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              name="registeredCourses"
-              value="ITA1114"
-              checked={registeredCourses.includes("ITA1114")}
-              onChange={handleRegisteredCourseChange}
-            />
-            <label className="ml-2" htmlFor="ITA1114">
-              ITA 1114
-            </label>
-          </div>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              name="registeredCourses"
-              value="ITA1911"
-              checked={registeredCourses.includes("ITA1911")}
-              onChange={handleRegisteredCourseChange}
-            />
-            <label className="ml-2" htmlFor="ITA1911">
-              ITA 1911
-            </label>
-          </div>
+          {activeCourses.map((course, i) => (
+           
+    <div className="flex items-center" key={i}>
+      <input
+        type="checkbox"
+        name="registeredCourses"
+        value={course.id}
+       // checked={registeredCourses.includes(courseId)}
+        onChange={handleRegisteredCourseChange}
+      />
+      <label className="ml-2">
+        {course.name}
+      </label>
+    </div>
+  ))}
         </div>
 
         <div className="mt-5">
