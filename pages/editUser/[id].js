@@ -78,7 +78,7 @@ export default function Page() {
 
         setFormData((prevFormData) => ({
           ...prevFormData,
-          registeredCourses: courseData.map((course) => course.id),
+         
         }));
         setRegisteredCourses(formData.registeredCourses);
         setLoading(false);
@@ -94,21 +94,19 @@ export default function Page() {
   if (isLoading) return <p>Loading...</p>;
   if (!formData) return <p>No profile data</p>;
 
-  const handleRegisteredCourseChange = (e) => {
-    const courseValue = e.target.value;
-    const isChecked = e.target.checked;
-
-    if (isChecked) {
-      setRegisteredCourses((prevRegisteredCourses) => [
-        ...prevRegisteredCourses,
-        courseValue,
-      ]);
-    } else {
-      setRegisteredCourses((prevRegisteredCourses) =>
-        prevRegisteredCourses.filter((course) => course !== courseValue)
-      );
-    }
+  const handleRegisteredCourseChange = (event) => {
+    const courseId = event.target.value;
+    const isChecked = event.target.checked;
+  
+    setRegisteredCourses((prevCourses) => {
+      if (isChecked) {
+        return prevCourses ? [...prevCourses, courseId] : [courseId];
+      } else {
+        return prevCourses ? prevCourses.filter((course) => course !== courseId) : [];
+      }
+    });
   };
+  
 
   return (
     <>
@@ -217,8 +215,8 @@ export default function Page() {
           //required
         />
         <div className="date-picker-container">
-          <label className="" htmlFor="enrollmentDate">
-            Pick the Enrollment Date:
+          <label className="mr-2" htmlFor="enrollmentDate">
+            Student&apos;s Enrolment Date:
           </label>
           <input
             type="date"
@@ -237,11 +235,11 @@ export default function Page() {
         type="checkbox"
         name="registeredCourses"
         value={course.id}
-       // checked={registeredCourses.includes(courseId)}
+        checked={registeredCourses ? registeredCourses.includes(course.id) : null}
         onChange={handleRegisteredCourseChange}
       />
       <label className="ml-2">
-        {course.name}
+      {course.courseCode}{course.section} - {course.name}
       </label>
     </div>
   ))}
