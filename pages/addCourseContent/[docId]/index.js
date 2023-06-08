@@ -14,7 +14,7 @@ import { db } from "../../../firebase";
 import TextForm from "../../../components/addCourseContent/AddCourseTextContent";
 import QuizForm from "../../../components/addCourseContent/AddCourseQuizContent";
 import VideoForm from "../../../components/addCourseContent/AddCourseVideoContent";
-
+//import { useFetchData } from "./useFetchData";
 
 export default function Page() {
   const [documentId, setDocumentId] = useState(null);
@@ -45,6 +45,8 @@ export default function Page() {
     }
 
   };
+
+  //const gotData = useFetchData(docId);
 
   useEffect(() => {
     const fetchData = async () => {
