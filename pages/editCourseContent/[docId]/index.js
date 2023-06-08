@@ -59,13 +59,10 @@ export default function Page() {
     fetchData();
   }, [router.query]);
 
-  const handleSubmit = async (formData) => {
+  const handleSubmit = async (formData, docToUpdateId) => {
     try {
-      // Add your logic here to handle form submission
-      // For example, you can add the form data to the Firebase Firestore
-      const { type } = formData;
-      const docRef = await addDoc(collection(db, "courseContent"), formData);
-      setCourse("");
+      const docRef = doc(db, "courseContent", docToUpdateId);
+      await updateDoc(docRef, formData);
   
       console.log("Form submitted successfully");
       // Optionally, you can redirect to a different page or perform other actions after form submission
@@ -74,7 +71,7 @@ export default function Page() {
       // Handle the error accordingly
     }
   };
-
+  
   
   
 

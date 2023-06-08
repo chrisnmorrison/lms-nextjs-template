@@ -24,12 +24,12 @@ let textAreaValue = "";
 
 const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
   console.log(documentId);
-  const [formData, setFormData] = useState({});
   const [anchorEl, setAnchorEl] = React.useState(null);
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [docToUpdateId, setDocToUpdateId] = useState(null);
   const [videoUpload, setVideoUpload] = useState(null);
-  const [courseContent, setCourseContent] = useState({});
+  const [formData, setFormData] = useState({});
   const [questions, setQuestions] = useState([]);
   const [newQuestion, setNewQuestion] = useState({});
   const open = Boolean(anchorEl);
@@ -40,13 +40,16 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const courseContentCollection = collection(db, "courseContent");
-        const docRef = doc(courseContentCollection, documentId);
+        const formDataCollection = collection(db, "courseContent");
+        const docRef = doc(formDataCollection, documentId);
         const docSnapshot = await getDoc(docRef);
 
         if (docSnapshot.exists()) {
-          const courseContentData = docSnapshot.data();
-          setCourseContent(courseContentData);
+          const formData = docSnapshot.data();
+    
+          setDocToUpdateId(docSnapshot.id);
+          setFormData(formData);
+          console.log(formData);
         } else {
           console.log("Document not found");
           // Handle the case when the document does not exist
@@ -131,15 +134,18 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    if (videoUpload === null) {
-      return;
-    }
+    let storageRef;
+    let videoUrl = formData.videoUrl;
+    console.log(videoUrl)
+    if (videoUpload) {
+      storageRef = ref(storage, `videos/${v4() + videoUpload.name}`);
+      await uploadBytes(storageRef, videoUpload);
+  
+      videoUrl = await getDownloadURL(storageRef);
+      console.log(videoUrl);
+    } 
 
-    const storageRef = ref(storage, `videos/${v4() + videoUpload.name}`);
-    await uploadBytes(storageRef, videoUpload);
-
-    const videoUrl = await getDownloadURL(storageRef);
-    console.log(videoUrl);
+   
 
     const updatedFormData = {
       ...formData,
@@ -148,8 +154,8 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
     console.log(updatedFormData);
 
     //console.log(jsonData);
-    onSubmit(updatedFormData);
-    router.push(`/courseContent/${courseCode}`);
+    onSubmit(updatedFormData, docToUpdateId);
+    router.push(`/courseContent/${formData.courseDocId}`);
   };
 
   const handleInputChange = (event) => {
@@ -167,7 +173,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
         Title
       </label>
       <input
-        defaultValue={courseContent.title}
+        defaultValue={formData.title}
         onChange={handleInputChange}
         className=""
         type="text"
@@ -186,7 +192,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
       </label>
 
       <input
-        defaultValue={courseContent.contentOrder}
+        defaultValue={formData.contentOrder}
         onChange={handleInputChange}
         className=""
         type="text"
@@ -221,7 +227,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
         Due Date/Time
       </label>
       <input
-        defaultValue={courseContent.due}
+        defaultValue={formData.due}
         onChange={handleInputChange}
         className=""
         type="datetime-local"
@@ -231,7 +237,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
         App Users can see this content at the following date and time:
       </label>
       <input
-        defaultValue={courseContent.open}
+        defaultValue={formData.open}
         onChange={handleInputChange}
         className=""
         type="datetime-local"
@@ -242,7 +248,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
         this content:
       </label>
       <input
-        defaultValue={courseContent.close}
+        defaultValue={formData.close}
         onChange={handleInputChange}
         className=""
         type="datetime-local"
@@ -251,7 +257,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
       <label className="mt-10" htmlFor="file">
         Video URL
       </label>
-      <p className="text-gray-700">{courseContent.videoUrl}</p>
+      <p className="text-gray-700">{formData.videoUrl}</p>
       <input
         type="file"
         name="file"
