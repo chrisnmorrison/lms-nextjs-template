@@ -286,4 +286,10 @@ form button:hover{
   margin: 2rem 0;
 }
 
-
+.success-message{
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  color: darkgreen;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
