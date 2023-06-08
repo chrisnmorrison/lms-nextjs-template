@@ -12,6 +12,7 @@ import {
   updateDoc,
   query,
   where,
+  getFirestore,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import { Button } from "@mui/material";
@@ -22,7 +23,9 @@ export default function Page() {
   const [formData, setFormData] = useState({});
   const [registeredCourses, setRegisteredCourses] = useState([]);
   const [activeCourses, setActiveCourses] = useState([]);
+  const [isFirstEffectDone, setIsFirstEffectDone] = useState(false);
   const [isLoading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const router = useRouter();
   const { id } = router.query;
 
@@ -32,15 +35,18 @@ export default function Page() {
 
     const updatedFormData = {
       ...formData,
-      registeredCourses: registeredCourses
+      registeredCourses: registeredCourses,
     };
 
     const docToUpdate = doc(db, "users", id);
     await updateDoc(docToUpdate, updatedFormData);
 
-    console.log(updatedFormData);
+    //console.log(updatedFormData);
+    setSuccessMessage("Data saved successfully!");
 
-    router.push("/users");
+    setTimeout(() => {
+      router.push("/users");
+    }, 5000);
   };
 
   //write to console whenever formData changes
@@ -59,7 +65,10 @@ export default function Page() {
         const document = await getDoc(documentRef);
 
         const coursesCollection = collection(db, "courses");
-        const activeCoursesQuery = query(coursesCollection, where("activeCourse", "==", true));
+        const activeCoursesQuery = query(
+          coursesCollection,
+          where("activeCourse", "==", true)
+        );
         const coursesSnapshot = await getDocs(activeCoursesQuery);
         const courseData = [];
         coursesSnapshot.forEach((doc) => {
@@ -67,7 +76,9 @@ export default function Page() {
         });
 
         setActiveCourses(courseData);
-        console.log(activeCourses)
+
+        console.log(activeCourses);
+        console.log(registeredCourses);
 
         let newData = null;
         if (!document.empty) {
@@ -76,11 +87,12 @@ export default function Page() {
         }
         setFormData(newData);
 
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-         
-        }));
-        setRegisteredCourses(formData.registeredCourses);
+        // setFormData((prevFormData) => ({
+        //   ...prevFormData,
+
+        // }));
+        console.log(formData.registeredCourses);
+
         setLoading(false);
       } catch (error) {
         console.error("Error retrieving document ID:", error);
@@ -89,7 +101,17 @@ export default function Page() {
     };
 
     fetchData();
+    setRegisteredCourses(formData.registeredCourses);
+    setIsFirstEffectDone(true);
   }, [id]);
+
+  useEffect(() => {
+    // Second useEffect code that depends on the first useEffect
+
+    if (isFirstEffectDone) {
+      setRegisteredCourses(formData.registeredCourses);
+    }
+  }, [isFirstEffectDone, formData.registeredCourses]);
 
   if (isLoading) return <p>Loading...</p>;
   if (!formData) return <p>No profile data</p>;
@@ -97,16 +119,17 @@ export default function Page() {
   const handleRegisteredCourseChange = (event) => {
     const courseId = event.target.value;
     const isChecked = event.target.checked;
-  
+
     setRegisteredCourses((prevCourses) => {
       if (isChecked) {
         return prevCourses ? [...prevCourses, courseId] : [courseId];
       } else {
-        return prevCourses ? prevCourses.filter((course) => course !== courseId) : [];
+        return prevCourses
+          ? prevCourses.filter((course) => course !== courseId)
+          : [];
       }
     });
   };
-  
 
   return (
     <>
@@ -114,7 +137,7 @@ export default function Page() {
       <h2 className="md-title">
         User:
         <strong>
-          &nbsp;{formData.firstName}&nbsp;{formData.lastName}
+          {formData.firstName}&nbsp;{formData.lastName}&nbsp;{formData.email}
         </strong>
       </h2>
       <form className="form-lg" id="editCourseForm" onSubmit={handleSubmit}>
@@ -126,10 +149,8 @@ export default function Page() {
           id="title"
           name="title"
           placeholder="Title"
-          value={formData.userTitle}
-          onChange={(e) =>
-            setFormData({ ...formData, userTitle: e.target.value })
-          }
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           //required
         />
         <label className="" htmlFor="first">
@@ -229,20 +250,24 @@ export default function Page() {
         <div className="flex flex-col text-left">
           <label>Courses Registration</label>
           {activeCourses.map((course, i) => (
-           
-    <div className="flex items-center" key={i}>
-      <input
-        type="checkbox"
-        name="registeredCourses"
-        value={course.id}
-        checked={registeredCourses ? registeredCourses.includes(course.id) : null}
-        onChange={handleRegisteredCourseChange}
-      />
-      <label className="ml-2">
-      {course.courseCode}{course.section} - {course.name}
-      </label>
-    </div>
-  ))}
+            <div className="flex items-center" key={i}>
+              <input
+                type="checkbox"
+                name="registeredCourses"
+                value={course.id}
+                checked={
+                  registeredCourses
+                    ? registeredCourses.includes(course.id)
+                    : null
+                }
+                onChange={handleRegisteredCourseChange}
+              />
+              <label className="ml-2">
+                {course.courseCode}
+                {course.section} - {course.name}
+              </label>
+            </div>
+          ))}
         </div>
 
         <div className="mt-5">
@@ -286,6 +311,8 @@ export default function Page() {
             Submit
           </Button>
         </div>
+        {/* Display the success message */}
+        {successMessage && <p className="success-message">{successMessage}</p>}
       </form>
     </>
   );
