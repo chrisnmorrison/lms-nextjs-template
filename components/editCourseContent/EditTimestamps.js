@@ -13,6 +13,7 @@ import {
   setDoc,
   deleteField,
   getDoc,
+  deleteDoc,
   updateDoc,
   getDocs,
   query,
@@ -82,6 +83,30 @@ const AddCourseVideoContent = ({ onSubmit, documentIdOfVideo, courseCode }) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const handleDeleteTimestamp = async (index, docId) => {
+    try {
+      const confirmation = window.confirm("Are you sure you want to delete this question?");
+  
+      if (confirmation) {
+        // Delete the specific question from the 'videoQuestions' collection
+        await deleteDoc(doc(db, "videoQuestions", docId));
+        console.log("Question deleted with ID: ", docId);
+  
+        // Remove the question from the state
+        const updatedQuestions = [...questions];
+        updatedQuestions.splice(index, 1);
+        setQuestions(updatedQuestions);
+  
+        //alert("Successfully deleted question!");
+  
+        // Additional logic or navigation can be implemented here
+      }
+    } catch (error) {
+      console.error("Error deleting question: ", error);
+    }
+  };
+  
 
   //////////// For Modifying Current Questions ////////////
   const handleAddQuestion = () => {
@@ -408,6 +433,9 @@ const AddCourseVideoContent = ({ onSubmit, documentIdOfVideo, courseCode }) => {
               </div>
               <Button className="btn" variant="contained" type="submit">
                 Edit Question
+              </Button>
+              <Button  style={{ marginLeft: '1rem' }}  className='btn' variant="contained" onClick={() => handleDeleteTimestamp(index, question.currentDocId)}>
+                Delete Question
               </Button>
             </div>
           </form>

@@ -199,7 +199,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
       </label>
 
       {quill}
-      <div className="mt-5">
+      <div className="mt-10">
         <Button variant="contained" type="submit" className="btn">
           Submit
         </Button>
