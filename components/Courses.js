@@ -106,6 +106,11 @@ export default function UserDashboard() {
                     <td>{content.dayOfWeek}</td>
                     <td>{content.time}</td>
                     <td className="flex">
+                      <Link href={`/viewCourseStudents/${content.id}`}>
+                        <Button sx={{ mr: 1 }} variant="contained" color="success">
+                          View Students
+                        </Button>
+                      </Link>
                       <Link href={`/courseContent/${content.id}`}>
                         <Button variant="contained" color="success">
                           Edit Content
