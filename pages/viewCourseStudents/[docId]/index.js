@@ -48,6 +48,9 @@ export default function Page() {
                         const userDocSnapshot = await getDoc(userDocRef);
 
                         if (userDocSnapshot.exists()) {
+                            if (!(studentDoc.data().Status === "REGISTERED")) {
+                                return null;
+                            }
                             return {
                                 id: studentDoc.id,
                                 grade: studentDoc.data().Grade,
