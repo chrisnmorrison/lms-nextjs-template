@@ -12,6 +12,7 @@ import { db } from "../firebase";
 import useFetchVideos from "../hooks/fetchVideos";
 import { Link } from "@mui/material";
 import { Button } from "@mui/material";
+import useSWR, { mutate } from 'swr';
 
 export default function UserDashboard() {
   const { userInfo, currentUser } = useAuth();
@@ -19,23 +20,24 @@ export default function UserDashboard() {
   const [video, setVideo] = useState([]);
   const [edittedValue, setEdittedValue] = useState("");
 
-  const { videos, setVideos, loading, error } = useFetchVideos();
+  const { videos, loading, error } = useFetchVideos();
 
   async function handleEditVideo(i) {
     if (!edittedValue) {
       return;
     }
     const newKey = edit;
-    setVideos({ ...videos, [newKey]: edittedValue });
+    const newVideos = { ...videos, [newKey]: edittedValue };
+    mutate('/api/videos', newVideos, false);
     const userRef = doc(db, "videos", currentUser.uid);
     await setDoc(
-      userRef,
-      {
-        videos: {
-          [newKey]: edittedValue,
+        userRef,
+        {
+          videos: {
+            [newKey]: edittedValue,
+          },
         },
-      },
-      { merge: true }
+        { merge: true }
     );
     setEdit(null);
     setEdittedValue("");
@@ -54,16 +56,16 @@ export default function UserDashboard() {
       const tempObj = { ...videos };
       delete tempObj[videoKey];
 
-      setVideos(tempObj);
+      mutate('/api/videos', tempObj, false);
       const userRef = doc(db, "videos", currentUser.uid);
       await setDoc(
-        userRef,
-        {
-          videos: {
-            [videoKey]: deleteField(),
+          userRef,
+          {
+            videos: {
+              [videoKey]: deleteField(),
+            },
           },
-        },
-        { merge: true }
+          { merge: true }
       );
     };
   }
