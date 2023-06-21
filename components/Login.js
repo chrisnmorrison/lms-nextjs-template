@@ -15,6 +15,11 @@ export default function Login() {
             setError('Please enter email and password')
             return
         }
+        // Firebase requires passwords to be at least 6 characters long
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters long')
+            return
+        }
         if (isLoggingIn) {
             try {
                 await login(email, password)
