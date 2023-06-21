@@ -147,6 +147,17 @@ export default function Page() {
                       </Button>
                     </Link>
                   ) : null}
+                  {content.type == "quiz" ? (
+                    <Link href={`${course}/editQuizQuestions/${content.id}`}>
+                      <Button
+                        sx={{ mr: 0.5, ml: 0.5 }}
+                        variant="contained"
+                        color="success"
+                      >
+                        Edit Quiz Questions
+                      </Button>
+                    </Link>
+                  ) : null}
 
                   <Link href={`${course}/editCourseContent/${content.id}`}>
                     <Button sx={{ mr: 0.5, ml: 0.5 }} variant="contained">
