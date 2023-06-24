@@ -9,26 +9,47 @@ import dynamic from "next/dynamic";
 import InfoIcon from "@mui/icons-material/Info";
 import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
+import { getDoc, doc } from "firebase/firestore";
+import { db } from "../../firebase";
 
 let textAreaValue = "";
 
 const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
-  console.log(courseCode);
   const [formData, setFormData] = useState({});
   const [textContent, setTextContent] = useState("");
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [docToUpdateId, setDocToUpdateId] = useState(null);
   const editorRef = useRef(null);
   const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
   useEffect(() => {
-    // Initialize the courseCode field with the value of courseCode
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      courseCode: courseCode,
-      type: "text",
-    }));
-    console.log(formData);
-  }, []);
+    const fetchData = async () => {
+      try {
+        const docRef = doc(db, 'courseContent', documentId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          setFormData(docSnap.data());
+          setTextContent(docSnap.data().textContent);
+          setDocToUpdateId(docSnap.id);
+          console.log('Document data:', docSnap.data());
+        } else {
+          console.log('No such document!');
+        }
+
+        setIsLoading(false); // Set loading state to false after data is fetched
+      } catch (error) {
+        console.error('Error retrieving document ID:', error);
+        throw error;
+      }
+    };
+
+    fetchData();
+  }, [documentId]);
+
+
+
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -66,8 +87,9 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
     const jsonData = JSON.stringify(formData);
 
     console.log(jsonData);
-    onSubmit(formData); // Call the onSubmit callback with the form data
+    onSubmit(formData, docToUpdateId); // Call the onSubmit callback with the form data
     setFormData(""); // Clear the form data after submission
+    router.push(`/courseContent/${formData.courseDocId}`);
   };
 
   const handleInputChange = (event) => {
@@ -82,6 +104,8 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
     console.log(formData);
   };
 
+  
+
   const quill = React.useMemo(
     () => (
       <ReactQuill
@@ -89,9 +113,10 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
         theme="snow"
         value={textContent}
         onChange={handleTextContentChange}
+        defaultValue={textContent}
       />
     ),
-    []
+    [textContent]
   );
 
   return (
@@ -109,6 +134,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
         id="title"
         name="title"
         required
+        defaultValue={formData.title}
       />
       <label
         className="block text-white-700 text-lg font-bold mb-2 mr-2 flex"
@@ -124,6 +150,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
         id="contentOrder"
         name="contentOrder"
         required
+        defaultValue={formData.contentOrder}
       />
       <InfoIcon
         className="ml-2"
@@ -165,6 +192,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
         className=""
         type="datetime-local"
         name="due"
+        defaultValue={formData.due}
       />
       <label
         className="block text-white-700 text-lg font-bold mb-2"
@@ -177,6 +205,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
         className=""
         type="datetime-local"
         name="open"
+        defaultValue={formData.open}
       />
       <label
         className="block text-white-700 text-lg font-bold mb-2"
@@ -190,6 +219,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
         className=""
         type="datetime-local"
         name="close"
+        defaultValue={formData.close}
       />
       <label
         className="block text-white-700 text-lg font-bold mb-2"
