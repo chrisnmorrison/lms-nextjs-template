@@ -9,9 +9,9 @@ const fetchCourses = async () => {
   const courseData = [];
   coursesSnapshot.forEach((doc) => {
     const course = { id: doc.id, ...doc.data() };
-    if (course.activeCourse) {
+
       courseData.push(course);
-    }
+    
   });
     return courseData
 }

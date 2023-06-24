@@ -15,7 +15,9 @@ import { useRouter } from "next/router";
 export default function UserDashboard() {
   const router = useRouter();
   const { userInfo, currentUser } = useAuth();
-  const [course, setCourse] = useState([]);
+  const [course, setCourse] = useState({
+    activeCourse: true,
+  });
 
 
   //console.log(courses)
@@ -56,6 +58,7 @@ export default function UserDashboard() {
                 id="courseName"
                 type="text"
                 placeholder="Course Name"
+                required
               />
            
               <label className="">
@@ -68,6 +71,7 @@ export default function UserDashboard() {
                 id="courseName"
                 type="text"
                 placeholder="e.g. ITAL1000"
+                required
               />
                <label className="">
                 Course Section
@@ -79,6 +83,7 @@ export default function UserDashboard() {
                 id="courseName"
                 type="text"
                 placeholder="e.g. A"
+                required
               />
                 <label className="">
                 Year
@@ -90,6 +95,7 @@ export default function UserDashboard() {
                 id="courseName"
                 type="text"
                 placeholder="e.g. 2023"
+                required
               />
            
               <label className="">
@@ -100,6 +106,7 @@ export default function UserDashboard() {
     onChange={(e) => setCourse({ ...course, semester: e.target.value })}
     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
     id="courseName"
+    required
   >
       <option value=""></option>
     <option value="winter">Winter</option>
@@ -117,17 +124,20 @@ export default function UserDashboard() {
     className="form-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
     type="checkbox"
     id="virtualClass"
+    required
   />
 
 <label className="">
     Is this class actively running? (inactive classes will not be shown to students)
   </label>
   <input
+
     checked={course.activeCourse}
     onChange={(e) => setCourse({ ...course, activeCourse: e.target.checked })}
     className="form-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
     type="checkbox"
     id="virtualClass"
+    required
   />
         
   <label className="">
@@ -175,6 +185,7 @@ export default function UserDashboard() {
                 Course Description
               </label>
               <textarea
+              required
                 rows="5"
                 value={course.description}
                 onChange={(e) =>

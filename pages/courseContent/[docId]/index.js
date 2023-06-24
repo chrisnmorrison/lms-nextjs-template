@@ -130,7 +130,9 @@ export default function Page() {
           </thead>
           <tbody>
             {courseContent.map((content) => (
+              
               <tr key={content.title}>
+                
                 <td>{content.contentOrder}</td>
                 <td>{content.title}</td>
                 <td>{startCase(content.type)}</td>

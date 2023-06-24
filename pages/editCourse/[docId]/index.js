@@ -89,6 +89,7 @@ export default function Page() {
              id="courseName"
              type="text"
              placeholder="Course Name"
+             required
            />
         
            <label className="">
@@ -101,6 +102,7 @@ export default function Page() {
              id="courseName"
              type="text"
              placeholder="e.g. ITAL1000"
+             required
            />
             <label className="">
              Course Section
@@ -112,6 +114,7 @@ export default function Page() {
              id="courseName"
              type="text"
              placeholder="e.g. A"
+             required
            />
              <label className="">
              Year
@@ -123,12 +126,14 @@ export default function Page() {
              id="courseName"
              type="text"
              placeholder="e.g. 2023"
+             required
            />
         
            <label className="">
              Semester
            </label>
            <select
+             required
  value={course.semester}
  onChange={(e) => setCourse({ ...course, semester: e.target.value })}
  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -145,6 +150,7 @@ export default function Page() {
  Is this class virtual?
 </label>
 <input
+             required
  checked={course.isVirtual}
  onChange={(e) => setCourse({ ...course, isVirtual: e.target.checked })}
  className="form-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
@@ -156,6 +162,7 @@ export default function Page() {
  Is this class actively running? (inactive classes will not be shown to students)
 </label>
 <input
+             required
  checked={course.activeCourse}
  onChange={(e) => setCourse({ ...course, activeCourse: e.target.checked })}
  className="form-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"

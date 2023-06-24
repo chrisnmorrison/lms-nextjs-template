@@ -25,12 +25,11 @@ export default function UserDashboard() {
 
   const { courses, isLoading, isError } = useFetchCourses();
 
-  const handleDelete = async (courseKey) => {
-    console.log(courseKey);
+  const handleArchive = async (courseKey) => {
     try {
       // Display a confirmation alert to the user
       const confirmed = window.confirm(
-        "Are you sure you want to delete this course?\n\nDeleting a course will move it to Archived Courses. You can restore it from there if you need to."
+        "Are you sure you want to archive this course?\n\nThis will mark the course as inactive and remove it from the current courses list."
       );
 
       // If the user confirms the deletion, proceed with the deletion logic
@@ -42,12 +41,8 @@ export default function UserDashboard() {
         const courseSnapshot = await getDoc(courseDocRef);
         const courseData = courseSnapshot.data();
 
-        // Add the document to the archivedCourses collection
-        const archivedCoursesCollection = collection(db, "archivedCourses");
-        await setDoc(doc(archivedCoursesCollection, courseKey), courseData);
-
-        // Delete the document from the current collection
-        await deleteDoc(courseDocRef);
+        // Update the activeCourse field to false
+        await updateDoc(courseDocRef, { activeCourse: false });
 
         // Perform any additional actions after successful deletion
         console.log("Course moved to archives");
@@ -57,7 +52,6 @@ export default function UserDashboard() {
       // Handle error and display an error message to the user
     }
   };
-
   return (
     <div className="w-full  text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
       <div className="flex items-center">
@@ -74,6 +68,7 @@ export default function UserDashboard() {
             <table className="table-dark">
               <thead>
                 <tr>
+                  <th>Active</th>
                   <th>Name</th>
                   <th>Code</th>
                   <th>Section</th>
@@ -96,6 +91,7 @@ export default function UserDashboard() {
                       content.year
                     }
                   >
+                    <td>{content.activeCourse ? "✅" : "❌"}</td>
                     <td>{content.name}</td>
                     <td>{content.courseCode}</td>
                     <td>{content.section}</td>
@@ -124,9 +120,9 @@ export default function UserDashboard() {
                       <Button
                         color="error"
                         variant="contained"
-                        onClick={() => handleDelete(content.id)} // Pass the courseKey as an argument
+                        onClick={() => handleArchive(content.id)} // Pass the courseKey as an argument
                       >
-                        Delete Course
+                        Archive Course
                       </Button>
                     </td>
                   </tr>

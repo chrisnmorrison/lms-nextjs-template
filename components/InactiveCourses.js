@@ -3,8 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import CourseCard from "./CourseCard";
 import {
   doc,
-  setDoc,
-  deleteField,
+  deleteDoc,
   getDoc,
   addDoc,
   collection,
@@ -20,33 +19,9 @@ export default function UserDashboard() {
   const [course, setCourse] = useState([]);
   const [edittedValue, setEdittedValue] = useState("");
 
-  const { courses, isLoading, isError } = useFetchCourses();
- 
+  const { courses, isLoading, isError, fetchCourses } = useFetchCourses();
+console.log(courses)
 
-  const handleDelete = async (courseKey) => {
-    console.log(courseKey);
-    try {
-      // Get a reference to the document to be deleted
-      const courseDocRef = doc(db, "courses", courseKey);
-
-      // Get the data of the document before deleting it
-      const courseSnapshot = await getDoc(courseDocRef);
-      const courseData = courseSnapshot.data();
-
-      // Delete the document from the current collection
-      await deleteDoc(courseDocRef);
-
-      // Add the document to the archivedCourses collection
-      const archivedCoursesCollection = collection(db, "archivedCourses");
-      await addDoc(archivedCoursesCollection, courseData);
-
-      // Perform any additional actions after successful deletion
-      console.log("Course moved to archives");
-    } catch (error) {
-      console.error("Error deleting course:", error);
-      // Handle error and display an error message to the user
-    }
-  };
 
   return (
     <div className="w-full  text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
@@ -62,49 +37,54 @@ export default function UserDashboard() {
         {!isLoading && (
           <>
             <table className="table-dark">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Code</th>
-              <th>Semester</th>
-              <th>Year</th>
-              <th>Location</th>
-              <th>Time</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {courses.map((content) => (
-              <tr key={content.name + content.code + content.semester + content.year}>
-                <td>{content.name}</td>
-                <td>{content.code}</td>
-                <td>{content.semester}</td>
-                <td>{content.year}</td>
-                <td>{content.location}</td>
-                <td>{content.time}</td>
-                <td className="flex">
-                  <Link href={`/courseContent/${content.code}` }>
-                    <Button sx={{ mr: 0.5 }} variant="contained">
-                      Edit Content
-                    </Button>
-                  </Link>
-                  <Button
-                    sx={{ ml: 0.5 }}
-                    color="error"
-                    variant="contained"
-                    onClick={() => handleDelete(content.id)} // Pass the courseKey as an argument
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Code</th>
+                  <th>Semester</th>
+                  <th>Year</th>
+                  <th>Location</th>
+                  <th>Time</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {courses.map((content) => (
+                  <tr
+                    key={
+                      content.name +
+                      content.code +
+                      content.semester +
+                      content.year
+                    }
                   >
-                    Delete Course
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-           
-            <div className="mt-5">
-             
-            </div>
+                    <td>{content.name}</td>
+                    <td>{content.code}</td>
+                    <td>{content.semester}</td>
+                    <td>{content.year}</td>
+                    <td>{content.location}</td>
+                    <td>{content.time}</td>
+                    <td className="flex">
+                      <Link href={`/courseContent/${content.code}`}>
+                        <Button sx={{ mr: 0.5 }} variant="contained">
+                          Edit Content
+                        </Button>
+                      </Link>
+                      <Button
+                        sx={{ ml: 0.5 }}
+                        color="error"
+                        variant="contained"
+                        onClick={() => handleDelete(content.id)} // Pass the courseKey as an argument
+                      >
+                        Delete Course
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <div className="mt-5"></div>
           </>
         )}
       </div>

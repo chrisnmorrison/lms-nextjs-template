@@ -18,7 +18,7 @@ const fetchCourses = async () => {
 
 export default function useFetchCourses() {
   const { currentUser } = useAuth()
-  const { data: courses, error } = useSWR(currentUser ? 'courses' : null, fetchCourses)
+  const { data: courses, error } = useSWR(currentUser ? 'archivedCourses' : null, fetchCourses)
 
   return {
     courses: courses || [],
