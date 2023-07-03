@@ -11,6 +11,7 @@ import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
 import { getDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase";
+import { useRouter } from "next/router";
 
 let textAreaValue = "";
 
@@ -21,6 +22,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [docToUpdateId, setDocToUpdateId] = useState(null);
   const editorRef = useRef(null);
+  const router = useRouter();
   const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
   useEffect(() => {

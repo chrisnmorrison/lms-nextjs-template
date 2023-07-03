@@ -101,7 +101,7 @@ export default function UserDashboard() {
                 </VideoCard>
               );
             })}
-            <div className="mt-5">
+            {/* <div className="mt-5">
               <Link
                 href="/AddVideo"
                 underline="hover"
@@ -111,7 +111,7 @@ export default function UserDashboard() {
                   Add New Video
                 </Button>
               </Link>
-            </div>
+            </div> */}
           </>
         )}
       </div>

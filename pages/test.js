@@ -73,6 +73,7 @@ export default function Home() {
       {!currentUser && <Login />}
       {currentUser && (
         <div className="w-full max-w-md mx-auto">
+          <h2 className="text-3xl mb-5">Developer Test Page</h2>
           <form 
             className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
             onSubmit={handleSubmit}

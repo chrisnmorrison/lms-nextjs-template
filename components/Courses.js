@@ -73,9 +73,9 @@ export default function UserDashboard() {
                   <th>Code</th>
                   <th>Section</th>
                   {/* <th>Semester</th>
-                  <th>Year</th> */}
+                  <th>Year</th> 
                   <th>Virtual</th>
-                  <th>Location</th>
+                  <th>Location</th>*/}
                   <th>Day</th>
                   <th>Time</th>
                   <th>Actions</th>
@@ -96,34 +96,34 @@ export default function UserDashboard() {
                     <td>{content.courseCode}</td>
                     <td>{content.section}</td>
                     {/* <td>{startCase(content.semester)}</td>
-                    <td>{content.year}</td> */}
+                    <td>{content.year}</td>
                     {content.isVirtual ? <td>Yes</td> : <td>No</td>}
-                    <td>{content.location}</td>
+                    <td>{content.location}</td> */}
                     <td>{content.dayOfWeek}</td>
                     <td>{content.time}</td>
                     <td className="flex">
                       <Link href={`/viewCourseStudents/${content.id}`}>
-                        <Button sx={{ mr: 1 }} variant="contained" color="success">
+                        <Button size="small" sx={{ mr: 1 }} variant="contained" color="success">
                           View Students
                         </Button>
                       </Link>
                       <Link href={`/courseContent/${content.id}`}>
-                        <Button variant="contained" color="success">
+                        <Button size="small" variant="contained" color="success">
                           Edit Content
                         </Button>
                       </Link>
                       <Link href={`/editCourse/${content.id}`}>
-                        <Button sx={{ mr: 1, ml: 1 }} variant="contained">
+                        <Button size="small" sx={{ mr: 1, ml: 1 }} variant="contained">
                           Edit Course
                         </Button>
                       </Link>
-                      <Button
+                      {/* <Button size="small"
                         color="error"
                         variant="contained"
                         onClick={() => handleArchive(content.id)} // Pass the courseKey as an argument
                       >
                         Archive Course
-                      </Button>
+                      </Button> */}
                     </td>
                   </tr>
                 ))}
@@ -140,7 +140,7 @@ export default function UserDashboard() {
                   Add New Course
                 </Button>
               </Link>
-              <Link
+              {/* <Link
                 href="/InactiveCourses"
                 underline="hover"
                 style={{
@@ -152,7 +152,7 @@ export default function UserDashboard() {
                 <Button size="large" variant="outlined" color="secondary">
                   View Inactive Courses
                 </Button>
-              </Link>
+              </Link> */}
             </div>
           </>
         )}

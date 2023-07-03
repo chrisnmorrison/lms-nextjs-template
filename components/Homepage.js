@@ -77,7 +77,9 @@ export default function UserDashboard() {
   return (
     <div className="text-center w-full  text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
       <h1 className="text-center text-3xl">Home</h1>
+      <p>Navigate to the page of your choice using the left sidebar.</p>
 
+<h2 className="text-center text-2xl">Developer Links</h2>
       <p>
         <a href="https://www.lipsum.com/">https://www.lipsum.com/</a>
       </p>

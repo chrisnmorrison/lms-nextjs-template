@@ -57,12 +57,12 @@ background: #202020;
 }
 
 .sidebar-items span {
- font-size: 1.4rem;   
+ font-size: 1.2rem;   
 }
 
 .sidebar-items li{
   padding: .75rem 2rem .75rem 1rem;
-  margin-left: 2rem;
+  margin-left: 1rem;
 }
 
 select{

@@ -96,11 +96,11 @@ export default function UserDashboard() {
                  
 
                   <Link href={`/editUser/${user.id}`}>
-                    <Button sx={{ mr: 0.5, ml: 0.5 }} variant="contained">
+                    <Button size="small" sx={{ mr: 0.5, ml: 0.5 }} variant="contained">
                       Edit User
                     </Button>
                   </Link>
-                  <Button
+                  <Button size="small"
                     sx={{ ml: 0.5 }}
                     color="error"
                     variant="contained"

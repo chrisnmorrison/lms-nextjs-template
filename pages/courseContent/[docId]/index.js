@@ -140,7 +140,7 @@ export default function Page() {
                 <td className="flex">
                   {content.type == "video" ? (
                     <Link href={`${course}/editTimestamps/${content.id}`}>
-                      <Button
+                      <Button size="small"
                         sx={{ mr: 0.5, ml: 0.5 }}
                         variant="contained"
                         color="success"
@@ -151,7 +151,7 @@ export default function Page() {
                   ) : null}
                   {content.type == "quiz" ? (
                     <Link href={`${course}/editQuizQuestions/${content.id}`}>
-                      <Button
+                      <Button size="small"
                         sx={{ mr: 0.5, ml: 0.5 }}
                         variant="contained"
                         color="success"
@@ -162,11 +162,11 @@ export default function Page() {
                   ) : null}
 
                   <Link href={`${course}/editCourseContent/${content.id}`}>
-                    <Button sx={{ mr: 0.5, ml: 0.5 }} variant="contained">
+                    <Button size="small" sx={{ mr: 0.5, ml: 0.5 }} variant="contained">
                       Edit Content
                     </Button>
                   </Link>
-                  <Button
+                  <Button size="small"
                     sx={{ ml: 0.5 }}
                     color="error"
                     variant="contained"
