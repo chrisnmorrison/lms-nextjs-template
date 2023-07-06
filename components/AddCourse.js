@@ -8,13 +8,16 @@ import {
   addDoc,
   collection,
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { db , storage} from "../firebase";
 import useFetchCourses from "../hooks/fetchCourses";
 import { useRouter } from "next/router";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 } from "uuid";
 
 export default function UserDashboard() {
   const router = useRouter();
   const { userInfo, currentUser } = useAuth();
+  const [bannerUpload, setBannerUpload] = useState(null);
   const [course, setCourse] = useState({
     activeCourse: true,
   });
@@ -32,7 +35,22 @@ export default function UserDashboard() {
     if (!course) {
       return;
     }
-    const docRef = await addDoc(collection(db, "courses"), course);
+  
+    let storageRef;
+    let bannerUrl;
+
+    if (bannerUpload) {
+      storageRef = ref(storage, `images/${v4() + bannerUpload.name}`);
+      await uploadBytes(storageRef, bannerUpload);
+  
+     bannerUrl = await getDownloadURL(storageRef);
+    }
+    console.log(bannerUrl)
+    const updatedFormData = {
+      ...course,
+      bannerUrl: bannerUrl,
+    };
+    const docRef = await addDoc(collection(db, "courses"), updatedFormData);
     setCourse("");
     router.push("/courses");
   }
@@ -45,7 +63,8 @@ export default function UserDashboard() {
   return (
     <div className="w-full  text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
       <div className="flex items-center">
-        <div className="w-full">
+      
+        <div className="w-full">  <h2 className="mb-8 text-3xl text-center">Add New Course</h2>
           <form className="form-lg">
            
               <label className="">
@@ -73,6 +92,32 @@ export default function UserDashboard() {
                 placeholder="e.g. ITAL1000"
                 required
               />
+              <label className="mt-10" htmlFor="file">Banner Picture Upload</label>
+     <input
+              
+              type="file"
+              name="file"
+              id="file"
+              className="sr-only"
+              onChange={(e) => {
+                setBannerUpload(e.target.files[0]);
+              }}
+            />
+            <label
+              htmlFor="file"
+              id="videoFile"
+              name="videoFile"
+              className="relative flex min-h-[100px] items-center justify-center rounded-md border border-dashed border-[#e0e0e0] p-4 text-center"
+            >
+              <div>
+              
+                <span className="inline-flex rounded border border-[#e0e0e0] py-2 px-7 text-base font-medium text-[#07074D]">
+                  Browse
+                </span>
+                {bannerUpload && 
+                <p className="text-black">{bannerUpload.name}</p>}
+              </div>
+            </label>
                <label className="">
                 Course Section
               </label>

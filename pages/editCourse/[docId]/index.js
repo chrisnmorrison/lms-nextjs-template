@@ -13,15 +13,19 @@ import {
   updateDoc,
   query,where
 } from "firebase/firestore";
-import { db } from "../../../firebase";
+import { db, storage } from "../../../firebase";
 import useFetchCourses from "../../../hooks/fetchCourses";
 import { Button } from "@mui/material";
 import Link from "next/link";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 } from "uuid";
 
 export default function Page() {
   const [documentId, setDocumentId] = useState(null);
   const [data, setData] = useState(null);
   const [course, setCourse] = useState("");
+  const [bannerUpload, setBannerUpload] = useState(null);
+
 
   const router = useRouter();
   const docId = router.query.docId;
@@ -34,13 +38,26 @@ export default function Page() {
 
     // Example code:
 
-   
+    let storageRef;
+    let bannerUrl;
+
+    if (bannerUpload) {
+      storageRef = ref(storage, `images/${v4() + bannerUpload.name}`);
+      await uploadBytes(storageRef, bannerUpload);
+  
+     bannerUrl = await getDownloadURL(storageRef);
+    }
+    console.log(bannerUrl)
+    const updatedFormData = {
+      ...course,
+      bannerUrl: bannerUrl,
+    };
 
     const docToUpdate = doc(db, "courses", docId);
-    await updateDoc(docToUpdate, course);
+    await updateDoc(docToUpdate, updatedFormData);
 
     // Do something with the updated form values
-    console.log(course);
+    console.log(updatedFormData);
 
     router.push("/courses");
   };
@@ -104,6 +121,32 @@ export default function Page() {
              placeholder="e.g. ITAL1000"
              required
            />
+            <label className="mt-10" htmlFor="file">Banner Picture Upload</label>
+     <input
+              
+              type="file"
+              name="file"
+              id="file"
+              className="sr-only"
+              onChange={(e) => {
+                setBannerUpload(e.target.files[0]);
+              }}
+            />
+            <label
+              htmlFor="file"
+              id="videoFile"
+              name="videoFile"
+              className="relative flex min-h-[100px] items-center justify-center rounded-md border border-dashed border-[#e0e0e0] p-4 text-center"
+            >
+              <div>
+              
+                <span className="inline-flex rounded border border-[#e0e0e0] py-2 px-7 text-base font-medium text-[#07074D]">
+                  Browse
+                </span>
+                {bannerUpload && 
+                <p className="text-black">{bannerUpload.name}</p>}
+              </div>
+            </label>
             <label className="">
              Course Section
            </label>
@@ -150,7 +193,6 @@ export default function Page() {
  Is this class virtual?
 </label>
 <input
-             required
  checked={course.isVirtual}
  onChange={(e) => setCourse({ ...course, isVirtual: e.target.checked })}
  className="form-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
@@ -162,7 +204,6 @@ export default function Page() {
  Is this class actively running? (inactive classes will not be shown to students)
 </label>
 <input
-             required
  checked={course.activeCourse}
  onChange={(e) => setCourse({ ...course, activeCourse: e.target.checked })}
  className="form-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
