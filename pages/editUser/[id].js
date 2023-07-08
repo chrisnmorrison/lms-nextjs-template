@@ -35,7 +35,7 @@ export default function Page() {
 
     const updatedFormData = {
       ...formData,
-      registeredCourses: registeredCourses,
+      registeredCourses: registeredCourses || [],
     };
 
     const docToUpdate = doc(db, "users", id);
