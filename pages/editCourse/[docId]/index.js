@@ -46,6 +46,9 @@ export default function Page() {
       await uploadBytes(storageRef, bannerUpload);
   
      bannerUrl = await getDownloadURL(storageRef);
+    } else {
+      // Set a default or fallback value for bannerUrl when no file is uploaded
+      bannerUrl = ''; // You can set it to an empty string or any other appropriate value
     }
     console.log(bannerUrl)
     const updatedFormData = {
