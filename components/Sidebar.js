@@ -62,6 +62,19 @@ export default function Sidebar() {
           <div>
             {" "}
             <li className="cursor-pointer inline-flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+              <Link href="/announcements">
+                <div className="inline-flex">
+                  <FcOrgUnit className="sidebar-icon" />
+                  <span className="inline-flex-1 ml-3 whitespace-nowrap">
+                    Announcements
+                  </span>
+                </div>
+              </Link>
+            </li>
+          </div>
+          {/* <div>
+            {" "}
+            <li className="cursor-pointer inline-flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
               <Link href="/RegistrationRequests">
                 <div className="inline-flex">
                   <FcOrgUnit className="sidebar-icon" />
@@ -96,7 +109,7 @@ export default function Sidebar() {
                 </div>
               </Link>
             </li>{" "}
-          </div>
+          </div> */}
         </ul>
       </div>
     </aside>
