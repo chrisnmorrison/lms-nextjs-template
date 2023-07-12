@@ -4,10 +4,8 @@ import {
   FcHome,
   FcNews,
   FcConferenceCall,
-  FcAnswers,
-  FcClapperboard, 
-  FcWorkflow,
-  FcOrgUnit
+  FcOrgUnit,
+  FcTodoList
 } from "react-icons/fc";
 
 export default function Sidebar() {
@@ -77,7 +75,7 @@ export default function Sidebar() {
             <li className="cursor-pointer inline-flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
               <Link href="/RegistrationRequests">
                 <div className="inline-flex">
-                  <FcAnswers className="sidebar-icon" />
+                  <FcTodoList className="sidebar-icon" />
                   <span className="inline-flex-1 ml-3 whitespace-nowrap">
                     Registration Requests
                   </span>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs, doc, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, arrayUnion, deleteDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase"; // import your Firestore instance
 import Head from 'next/head'
 import Image from 'next/image'
@@ -24,18 +24,27 @@ export default function Home() {
   }, []);
 
   const handleAccept = async (req) => {
-    const userRef = doc(db, 'users', req.docId); // Assuming 'users' collection and 'studentNumber' as document id
+    const userRef = doc(db, 'users', req.userDocId);
     const reqRef = doc(db, 'registrationRequests', req.id);
-    
+  
+    const userSnapshot = await getDoc(userRef);
+    const userDoc = userSnapshot.data();
+  
+    // Check if registeredCourses field exists in the document
+    const registeredCourses = userDoc.registeredCourses || [];
+  
+    const updatedCourses = new Set(registeredCourses);
+    updatedCourses.add(req.courseDocId);
+  
     await updateDoc(userRef, {
-      registeredCourses: arrayUnion(req.requestedCourse)
+      registeredCourses: Array.from(updatedCourses)
     });
-
+  
     await deleteDoc(reqRef);
-
+  
     setRegistrationRequests(registrationRequests.filter(request => request.id !== req.id));
   };
-
+  
   const handleDeny = async (req) => {
     const reqRef = doc(db, 'registrationRequests', req.id);
     
@@ -64,13 +73,15 @@ export default function Home() {
               </tr>
             </thead>
             <tbody>
+{console.log(registrationRequests)}
+              
               {registrationRequests.map((req, index) => (
                 <tr key={index}>
-                  <td>{req.name}</td>
+                  <td>{req.firstName} {req.lastName}</td>
                   <td>{req.studentNumber}</td>
-                  <td>{req.requestedCourse}</td>
+                  <td>{req.courseName}</td>
                   <td className="flex">
-                    <Button sx={{ mr: 1 }} variant="contained" color="success" onClick={() => handleAccept(req)}>
+                    <Button sx={{ mr: 5 }} variant="contained" color="success" onClick={() => handleAccept(req)}>
                       Accept
                     </Button>
                     <Button variant="contained" color="error" onClick={() => handleDeny(req)}>
