@@ -13,6 +13,7 @@ export default function UserDashboard() {
   const [edittedValue, setEdittedValue] = useState("");
   const [sortField, setSortField] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [searchValue, setSearchValue] = useState("");
 
   const { users, setUsers, loading, error } = useFetchUsers();
   console.log(users);
@@ -50,11 +51,11 @@ export default function UserDashboard() {
       setSortOrder("asc");
     }
   }
-  
+
   function renderSortArrow() {
-    if (sortOrder === '') {
-      return '↑↓';
-    } else if (sortOrder === 'asc') {
+    if (sortOrder === "") {
+      return "↑↓";
+    } else if (sortOrder === "asc") {
       return "↑↑";
     } else {
       return "↓↓";
@@ -73,8 +74,16 @@ export default function UserDashboard() {
       return sortOrder === "asc" ? fieldA.localeCompare(fieldB) : fieldB.localeCompare(fieldA);
     }
   });
-  
-  
+
+  const filteredUsers = sortedUsers.filter(user =>
+    Object.values(user).some(value =>
+      value.toString().toLowerCase().includes(searchValue.toLowerCase())
+    )
+  );
+
+  function handleSearchChange(event) {
+    setSearchValue(event.target.value);
+  }
 
   return (
     <div className="w-full  text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
@@ -89,41 +98,49 @@ export default function UserDashboard() {
       <div className="current-users">
         {!loading && (
           <>
+            <span>Search for a user: </span><div className="search-bar mb-5">
+              <input
+                type="text"
+                value={searchValue}
+                onChange={handleSearchChange}
+                placeholder="Search"
+              />
+            </div>
             <table className="table-dark">
               <thead>
                 <tr>
                   <th>
                     <button onClick={() => handleSort("firstName")}>
-                      First Name {sortField === "firstName" && renderSortArrow() ? renderSortArrow() : '↑↓'}
+                      First Name {sortField === "firstName" && renderSortArrow() ? renderSortArrow() : "↑↓"}
                     </button>
                   </th>
                   <th>
                     <button onClick={() => handleSort("lastName")}>
-                      Last Name {sortField === "lastName" && renderSortArrow() ? renderSortArrow() : '↑↓'}
+                      Last Name {sortField === "lastName" && renderSortArrow() ? renderSortArrow() : "↑↓"}
                     </button>
                   </th>
                   <th>
                     <button onClick={() => handleSort("studentNumber")}>
-                      Student # {sortField === "studentNumber" && renderSortArrow()  ? renderSortArrow() : '↑↓'}
+                      Student # {sortField === "studentNumber" && renderSortArrow() ? renderSortArrow() : "↑↓"}
                     </button>
                   </th>
                   <th>
                     <button onClick={() => handleSort("isAdmin")}>
-                      Admin {sortField === "isAdmin" && renderSortArrow()  ? renderSortArrow() : '↑↓'}
+                      Admin {sortField === "isAdmin" && renderSortArrow() ? renderSortArrow() : "↑↓"}
                     </button>
                   </th>
                   <th>
                     <button onClick={() => handleSort("email")}>
-                      Email {sortField === "email" && renderSortArrow()  ? renderSortArrow() : '↑↓'}
+                      Email {sortField === "email" && renderSortArrow() ? renderSortArrow() : "↑↓"}
                     </button>
                   </th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {sortedUsers.map((user, i) => (
+                {filteredUsers.map((user, i) => (
                   <tr key={i}>
-                      <td>{user.firstName ? user.firstName : ""}</td>
+                    <td>{user.firstName ? user.firstName : ""}</td>
                     <td>{user.lastName ? user.lastName : ""}</td>
                     <td>{user.studentNumber}</td>
                     <td>{user.isAdmin ? "✅" : "❌"}</td>
