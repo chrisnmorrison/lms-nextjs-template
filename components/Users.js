@@ -11,37 +11,11 @@ export default function UserDashboard() {
   const { userInfo, currentUser } = useAuth();
   const [edit, setEdit] = useState(null);
   const [edittedValue, setEdittedValue] = useState("");
+  const [sortField, setSortField] = useState("");
+  const [sortOrder, setSortOrder] = useState("asc");
 
   const { users, setUsers, loading, error } = useFetchUsers();
-  console.log(users)
-
-  async function handleEditUser(i) {
-    if (!edittedValue) {
-      return;
-    }
-    const newKey = edit;
-    setUsers({ ...users, [newKey]: edittedValue });
-    const userRef = doc(db, "users", currentUser.uid);
-    await setDoc(
-      userRef,
-      {
-        users: {
-          [newKey]: edittedValue,
-        },
-      },
-      { merge: true }
-    );
-    setEdit(null);
-    setEdittedValue("");
-  }
-
-  function handleAddEdit(userKey) {
-    return () => {
-      console.log(users[userKey]);
-      setEdit(userKey);
-      setEdittedValue(users[userKey]);
-    };
-  }
+  console.log(users);
 
   function handleDelete(userKey) {
     return async () => {
@@ -62,6 +36,46 @@ export default function UserDashboard() {
     };
   }
 
+  function handleSort(field) {
+    if (sortField === field) {
+      if (sortOrder === "asc") {
+        setSortOrder("desc");
+      } else if (sortOrder === "desc") {
+        setSortOrder("");
+      } else {
+        setSortOrder("asc");
+      }
+    } else {
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  }
+  
+  function renderSortArrow() {
+    if (sortOrder === '') {
+      return '↑↓';
+    } else if (sortOrder === 'asc') {
+      return "↑↑";
+    } else {
+      return "↓↓";
+    }
+  }
+
+  const sortedUsers = [...users];
+  sortedUsers.sort((a, b) => {
+    if (sortField === "isAdmin") {
+      const fieldA = a[sortField] ? (a[sortField] ? 1 : 0) : 0;
+      const fieldB = b[sortField] ? (b[sortField] ? 1 : 0) : 0;
+      return sortOrder === "asc" ? fieldA - fieldB : fieldB - fieldA;
+    } else {
+      const fieldA = a[sortField] ? String(a[sortField]).toLowerCase() : "";
+      const fieldB = b[sortField] ? String(b[sortField]).toLowerCase() : "";
+      return sortOrder === "asc" ? fieldA.localeCompare(fieldB) : fieldB.localeCompare(fieldA);
+    }
+  });
+  
+  
+
   return (
     <div className="w-full  text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
       <div className="flex items-center">
@@ -78,43 +92,63 @@ export default function UserDashboard() {
             <table className="table-dark">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Student #</th>
-                  <th>Admin</th>
-                  <th>Email</th>
+                  <th>
+                    <button onClick={() => handleSort("firstName")}>
+                      First Name {sortField === "firstName" && renderSortArrow() ? renderSortArrow() : '↑↓'}
+                    </button>
+                  </th>
+                  <th>
+                    <button onClick={() => handleSort("lastName")}>
+                      Last Name {sortField === "lastName" && renderSortArrow() ? renderSortArrow() : '↑↓'}
+                    </button>
+                  </th>
+                  <th>
+                    <button onClick={() => handleSort("studentNumber")}>
+                      Student # {sortField === "studentNumber" && renderSortArrow()  ? renderSortArrow() : '↑↓'}
+                    </button>
+                  </th>
+                  <th>
+                    <button onClick={() => handleSort("isAdmin")}>
+                      Admin {sortField === "isAdmin" && renderSortArrow()  ? renderSortArrow() : '↑↓'}
+                    </button>
+                  </th>
+                  <th>
+                    <button onClick={() => handleSort("email")}>
+                      Email {sortField === "email" && renderSortArrow()  ? renderSortArrow() : '↑↓'}
+                    </button>
+                  </th>
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody> {users.map((user, i) => {
-              return (
-                <>
-                <tr key={i}></tr>
-                <td>{user.firstName} {user.lastName}</td>
-                <td>{user.studentNumber}</td>
-                <td>{user.isAdmin ? "✅" : "❌"}</td>
-                <td>{user.email}</td>
-                <td className="flex">
-                 
-
-                  <Link href={`/editUser/${user.id}`}>
-                    <Button size="small" sx={{ mr: 0.5, ml: 0.5 }} variant="contained">
-                      Edit User
-                    </Button>
-                  </Link>
-                  <Button size="small"
-                    sx={{ ml: 0.5 }}
-                    color="error"
-                    variant="contained"
-                    onClick={() => handleDelete(user.id)} // Pass the courseKey as an argument
-                  >
-                    Delete User
-                  </Button>
-                </td>
-              </> );
-             
-            })}</tbody>
+              <tbody>
+                {sortedUsers.map((user, i) => (
+                  <tr key={i}>
+                      <td>{user.firstName ? user.firstName : ""}</td>
+                    <td>{user.lastName ? user.lastName : ""}</td>
+                    <td>{user.studentNumber}</td>
+                    <td>{user.isAdmin ? "✅" : "❌"}</td>
+                    <td>{user.email}</td>
+                    <td className="flex">
+                      <Link href={`/editUser/${user.id}`}>
+                        <Button size="small" sx={{ mr: 0.5, ml: 0.5 }} variant="contained">
+                          Edit User
+                        </Button>
+                      </Link>
+                      <Button
+                        size="small"
+                        sx={{ ml: 0.5 }}
+                        color="error"
+                        variant="contained"
+                        onClick={() => handleDelete(user.id)}
+                      >
+                        Delete User
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-           
+
             <div className="mt-5">
               <Link
                 href="/AddUser"
@@ -130,7 +164,6 @@ export default function UserDashboard() {
         )}
       </div>
     </div>
-    
   );
 }
 
