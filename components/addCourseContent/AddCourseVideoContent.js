@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@mui/material";
@@ -12,26 +10,22 @@ import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/router";
 import { v4 } from "uuid";
 
-let textAreaValue = "";
-
 const AddCourseVideoContent = ({ onSubmit, documentId, type }) => {
-  console.log(documentId);
   const [formData, setFormData] = useState({});
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [videoUpload, setVideoUpload] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   const router = useRouter();
 
   useEffect(() => {
-    // Initialize the courseCode field with the value of courseCode
     setFormData((prevFormData) => ({
       ...prevFormData,
       courseDocId: documentId,
       type: "video",
     }));
-    console.log(formData);
   }, []);
 
   const handleClick = (event) => {
@@ -52,19 +46,21 @@ const AddCourseVideoContent = ({ onSubmit, documentId, type }) => {
     }
 
     const storageRef = ref(storage, `videos/${v4() + videoUpload.name}`);
-    await uploadBytes(storageRef, videoUpload);
+    setUploading(true);
 
-    const videoUrl = await getDownloadURL(storageRef);
-    console.log(videoUrl);
-
-    const updatedFormData = {
-      ...formData,
-      videoUrl: videoUrl,
-    };
-    console.log(updatedFormData);
-
-    //console.log(jsonData);
-    onSubmit(updatedFormData);
+    try {
+      await uploadBytes(storageRef, videoUpload);
+      const videoUrl = await getDownloadURL(storageRef);
+      const updatedFormData = {
+        ...formData,
+        videoUrl: videoUrl,
+      };
+      onSubmit(updatedFormData);
+    } catch (error) {
+      console.error("Error uploading video:", error);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleInputChange = (event) => {
@@ -73,7 +69,6 @@ const AddCourseVideoContent = ({ onSubmit, documentId, type }) => {
       ...prevFormData,
       [name]: value,
     }));
-    // console.log(formData);
   };
 
   return (
@@ -90,22 +85,23 @@ const AddCourseVideoContent = ({ onSubmit, documentId, type }) => {
         required
       />
       <label className=" mr-2 flex" htmlFor="contentOrder">
-        Chapter
+        Chapter{" "}
+        <InfoIcon
+          className="ml-2 text-grey-700"
+          aria-describedby={id}
+          variant="contained"
+          onClick={handleClick}
+        />
       </label>
 
       <input
+        defaultValue={formData.contentOrder}
         onChange={handleInputChange}
         className=""
         type="text"
         id="contentOrder"
         name="contentOrder"
         required
-      />
-      <InfoIcon
-        className="ml-2"
-        aria-describedby={id}
-        variant="contained"
-        onClick={handleClick}
       />
 
       <Popover
@@ -134,6 +130,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, type }) => {
         Due Date/Time
       </label>
       <input
+        defaultValue={formData.due}
         onChange={handleInputChange}
         className=""
         type="datetime-local"
@@ -143,6 +140,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, type }) => {
         App Users can see this content at the following date and time:
       </label>
       <input
+        defaultValue={formData.open}
         onChange={handleInputChange}
         className=""
         type="datetime-local"
@@ -153,19 +151,30 @@ const AddCourseVideoContent = ({ onSubmit, documentId, type }) => {
         this content:
       </label>
       <input
+        defaultValue={formData.close}
         onChange={handleInputChange}
         className=""
         type="datetime-local"
         name="close"
       />
+
       <label className="mt-10" htmlFor="file">
         Video Upload
       </label>
-      <input type="file" name="file" id="file" className="sr-only" 
-      onChange={(e) => {setVideoUpload(e.target.files[0]);
+      <input
+        type="file"
+        name="file"
+        id="file"
+        className="sr-only"
+        onChange={(e) => {
+          setVideoUpload(e.target.files[0]);
         }}
       />
-      <label htmlFor="file" id="videoFile" name="videoFile" className="relative flex min-h-[100px] items-center justify-center rounded-md border border-dashed border-[#e0e0e0] p-4 text-center"
+      <label
+        htmlFor="file"
+        id="videoFile"
+        name="videoFile"
+        className="relative flex min-h-[100px] items-center justify-center rounded-md border border-dashed border-[#e0e0e0] p-4 text-center"
       >
         <div>
           <span className="inline-flex rounded border border-[#e0e0e0] py-2 px-7 text-base font-medium text-[#07074D]">
@@ -174,11 +183,25 @@ const AddCourseVideoContent = ({ onSubmit, documentId, type }) => {
           {videoUpload && <p className="text-black">{videoUpload.name}</p>}
         </div>
       </label>
-
       <div className="mt-5">
-        <Button variant="contained" type="submit" className="btn">
-          Submit
+        <p className="text-black">
+          *Once a video is uploaded, you can optionally edit the video timestamp by navigating to Courses, Edit Content, then Edit Quiz Questions.
+        </p>
+      </div>
+      <div className="mt-5">
+        <Button
+          variant="contained"
+          type="submit"
+          className="btn"
+          disabled={uploading}
+        >
+          {uploading ? "Uploading..." : "Submit"}
         </Button>
+        {uploading && (
+          <span className="ml-2 text-black">
+            Video is uploading, <strong>please do not navigate away from this page.</strong>
+          </span>
+        )}
       </div>
     </form>
   );

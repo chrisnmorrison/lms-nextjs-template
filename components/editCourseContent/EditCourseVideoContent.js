@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@mui/material";
@@ -8,19 +6,10 @@ import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
 import { storage, db } from "../../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import {
-  doc,
-  setDoc,
-  deleteField,
-  getDoc,
-  addDoc,
-  collection,
-} from "firebase/firestore";
 import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/router";
 import { v4 } from "uuid";
-
-let textAreaValue = "";
+import { collection, doc, getDoc, } from "firebase/firestore";
 
 const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
   console.log(documentId);
@@ -32,6 +21,7 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
   const [formData, setFormData] = useState({});
   const [questions, setQuestions] = useState([]);
   const [newQuestion, setNewQuestion] = useState({});
+  const [uploading, setUploading] = useState(false);
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
 
@@ -139,13 +129,18 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
     console.log(videoUrl)
     if (videoUpload) {
       storageRef = ref(storage, `videos/${v4() + videoUpload.name}`);
-      await uploadBytes(storageRef, videoUpload);
+      setUploading(true);
   
-      videoUrl = await getDownloadURL(storageRef);
-      console.log(videoUrl);
-    } 
-
-   
+      try {
+        await uploadBytes(storageRef, videoUpload);
+        videoUrl = await getDownloadURL(storageRef);
+        console.log(videoUrl);
+      } catch (error) {
+        console.error("Error uploading video:", error);
+      } finally {
+        setUploading(false);
+      }
+    }
 
     const updatedFormData = {
       ...formData,
@@ -280,6 +275,11 @@ const AddCourseVideoContent = ({ onSubmit, documentId, courseCode, type }) => {
           {videoUpload && <p className="text-black">{videoUpload.name}</p>}
         </div>
       </label>
+      {uploading && (
+        <span className="ml-2 text-black">
+          Video is uploading, <strong>please do not navigate away from this page.</strong>
+        </span>
+      )}
       <p className="text-gray-700">
         <strong>
           * Note: Adding a new video DOES NOT delete the old video from storage!
