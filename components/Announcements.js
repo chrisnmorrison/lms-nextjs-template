@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import UserCard from "./UserCard";
-import { doc, setDoc, deleteField } from "firebase/firestore";
+import { doc, setDoc, deleteField , deleteDoc} from "firebase/firestore";
 import { db } from "../firebase";
-import useFetchUsers from "../hooks/fetchUsers";
 import { Link } from "@mui/material";
 import { Button } from "@mui/material";
+import useFetchAnnouncements from "../hooks/fetchAnnouncements";
 
 export default function UserDashboard() {
   const { userInfo, currentUser } = useAuth();
   const [edit, setEdit] = useState(null);
   const [edittedValue, setEdittedValue] = useState("");
 
-  const { users, setUsers, loading, error } = useFetchUsers();
-  console.log(users)
+  const { announcements, setAnnouncements, isLoading, error } = useFetchAnnouncements();
 
   async function handleEditUser(i) {
     if (!edittedValue) {
@@ -43,86 +42,99 @@ export default function UserDashboard() {
     };
   }
 
-  function handleDelete(userKey) {
-    return async () => {
-      const tempObj = { ...users };
-      delete tempObj[userKey];
-
-      setUsers(tempObj);
-      const userRef = doc(db, "users", currentUser.uid);
-      await setDoc(
-        userRef,
-        {
-          users: {
-            [userKey]: deleteField(),
-          },
-        },
-        { merge: true }
-      );
-    };
-  }
+  const handleDelete = (docId) => {
+    console.log("In delete function");
+  
+    // Display a confirmation alert to the user
+    const confirmed = window.confirm("Are you sure you want to delete this announcement?");
+  
+    // If the user confirms the deletion, proceed with the deletion logic
+    if (confirmed) {
+      (async () => {
+        try {
+          // Get a reference to the announcement document to be deleted
+          const announcementDocRef = doc(db, "announcements", docId);
+  
+          // Delete the announcement document from the "announcements" collection
+          await deleteDoc(announcementDocRef);
+  
+          // Show a success message to the user
+          alert("Announcement deleted successfully!");
+  
+          // If you are using the announcements state, update it accordingly
+          // Assuming announcements is an array, and you have setAnnouncements function
+          // setAnnouncements(announcements.filter((announcement) => announcement.id !== docId));
+        } catch (error) {
+          console.error("Error deleting announcement:", error);
+          // Handle error and display an error message to the user
+          alert("An error occurred while deleting the announcement.");
+        }
+      })();
+    }
+  };
+  
 
   return (
     <div className="w-full  text-xs sm:text-sm mx-auto flex flex-col flex-1 gap-3 sm:gap-5">
       <div className="flex items-center">
-        <h1 className="text-3xl">User List</h1>
+        <h1 className="text-3xl">Announcements</h1>
       </div>
-      {loading && (
+      {isLoading && (
         <div className="flex-1 grid place-items-center">
           <i className="fa-solid fa-spinner animate-spin text-6xl"></i>
         </div>
       )}
-      <div className="current-users">
-        {!loading && (
+      <div className="announcements-list">
+        {!isLoading && (
           <>
             <table className="table-dark">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Student #</th>
-                  <th>Admin</th>
-                  <th>Email</th>
+                  <th>Title</th>
+                  <th>Release Date</th>
+                  <th>Expiry Date</th>
+                  <th>Announcement Text</th>
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody> {users.map((user, i) => {
-              return (
-                <>
-                <tr key={i}></tr>
-                <td>{user.firstName} {user.lastName}</td>
-                <td>{user.studentNumber}</td>
-                <td>{user.isAdmin ? "✅" : "❌"}</td>
-                <td>{user.email}</td>
-                <td className="flex">
-                 
-
-                  <Link href={`/editUser/${user.id}`}>
-                    <Button size="small" sx={{ mr: 0.5, ml: 0.5 }} variant="contained">
-                      Edit User
-                    </Button>
-                  </Link>
-                  <Button size="small"
-                    sx={{ ml: 0.5 }}
-                    color="error"
-                    variant="contained"
-                    onClick={() => handleDelete(user.id)} // Pass the courseKey as an argument
-                  >
-                    Delete User
-                  </Button>
-                </td>
-              </> );
-             
-            })}</tbody>
+              <tbody>
+                {/* Iterate through announcements */}
+                {announcements.map((announcement) => (
+                  <tr key={announcement.id}>
+                    <td>{announcement.title}</td>
+                    <td>{announcement.releaseDate}</td>
+                    <td>{announcement.expiryDate}</td>
+                    <td>{announcement.text}</td>
+                    <td className="flex">
+                      {/* Add action buttons as needed */}
+                      {/* <Link href={`/editAnnouncement/${announcement.id}`}>
+                        <Button size="small" sx={{ mr: 1 }} variant="contained" color="success">
+                          Edit Announcement
+                        </Button>
+                      </Link> */}
+                      <Button
+                        size="small"
+                        color="error"
+                        variant="contained"
+                        onClick={() => handleDelete(announcement.id)} // Pass the announcement id as an argument
+                      >
+                        Delete Announcement
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-           
+
+            {/* Add a button to create a new announcement */}
             <div className="mt-5">
               <Link
-                href="/AddUser"
+                href="/addAnnouncement"
                 underline="hover"
                 style={{ fontSize: "200%", marginBottom: ".5rem" }}
               >
                 <Button size="large" variant="outlined">
-                  Add New User
+                  Add New Announcement
                 </Button>
               </Link>
             </div>
@@ -130,7 +142,6 @@ export default function UserDashboard() {
         )}
       </div>
     </div>
-    
   );
 }
 
