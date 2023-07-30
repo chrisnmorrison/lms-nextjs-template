@@ -1,29 +1,27 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { doc, getDoc, getDocs, collection, getFirestore } from 'firebase/firestore'
 import { useAuth } from '../context/AuthContext'
 import { db } from '../firebase'
+import { collection, getDocs } from 'firebase/firestore'
+import useSWR from 'swr'
+
+const fetchUsers = async () => {
+  const usersCollection = collection(db, 'users')
+  const usersSnapshot = await getDocs(usersCollection)
+  const userData = [];
+  usersSnapshot.forEach((doc) => {
+    const user = { id: doc.id, ...doc.data() };
+
+      userData.push(user);
+    
+  });
+    return userData
+}
 
 export default function useFetchUsers() {
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
-    const [users, setUsers] = useState([])
-
-    const { currentUser } = useAuth()
-
-    useEffect(() => {
-        const fetchData = async () => {
-          const usersCollection = collection(db, 'users');
-          const usersSnapshot = await getDocs(usersCollection);
-          const usersData = usersSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setUsers(usersData);
-          setLoading(false);
-        };
-      
-        fetchData();
-    }, [])
-
-    return { loading, error, users, setUsers }
+  const { currentUser } = useAuth()
+  const { data: users, error } = useSWR(currentUser ? 'users' : null, fetchUsers)
+  return {
+    users: users || [],
+    isLoading: !error && !users,
+    isError: error,
+  }
 }
