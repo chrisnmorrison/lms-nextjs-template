@@ -118,7 +118,7 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
         defaultValue={textContent}
       />
     ),
-    [textContent]
+    []
   );
 
   return (
