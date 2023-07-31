@@ -19,7 +19,9 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
   const [formData, setFormData] = useState({});
   const [textContent, setTextContent] = useState("");
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [initialText, setInitialText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [showQuill, setShowQuill] = useState(false);
   const [docToUpdateId, setDocToUpdateId] = useState(null);
   const editorRef = useRef(null);
   const router = useRouter();
@@ -34,6 +36,8 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
         if (docSnap.exists()) {
           setFormData(docSnap.data());
           setTextContent(docSnap.data().textContent);
+          setInitialText(docSnap.data().textContent);
+          console.log(textContent);
           setDocToUpdateId(docSnap.id);
           console.log('Document data:', docSnap.data());
         } else {
@@ -106,137 +110,145 @@ const AddCourseTextContent = ({ onSubmit, documentId, courseCode, type }) => {
     console.log(formData);
   };
 
+
+
   
 
   const quill = React.useMemo(
     () => (
+    
       <ReactQuill
         ref={editorRef}
         theme="snow"
         value={textContent}
         onChange={handleTextContentChange}
-        defaultValue={textContent}
+        defaultValue={initialText}
       />
     ),
-    []
+    [initialText]
   );
 
   return (
-    <form className="form-lg" onSubmit={handleFormSubmit}>
-      <label
-        className="block text-white-700 text-lg font-bold mb-2"
-        htmlFor="title"
-      >
-        Title
-      </label>
-      <input
-        onChange={handleInputChange}
-        className=""
-        type="text"
-        id="title"
-        name="title"
-        required
-        defaultValue={formData.title}
-      />
-      <label
-        className="block text-white-700 text-lg font-bold mb-2 mr-2 flex"
-        htmlFor="contentOrder"
-      >
-        Chapter
-      </label>
+    <>
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <form className="form-lg" onSubmit={handleFormSubmit}>
+          <label
+            className="block text-white-700 text-lg font-bold mb-2"
+            htmlFor="title"
+          >
+            Title
+          </label>
+          <input
+            onChange={handleInputChange}
+            className=""
+            type="text"
+            id="title"
+            name="title"
+            required
+            defaultValue={formData.title}
+          />
+          <label
+            className="block text-white-700 text-lg font-bold mb-2 mr-2 flex"
+            htmlFor="contentOrder"
+          >
+            Chapter
+          </label>
 
-      <input
-        onChange={handleInputChange}
-        className=""
-        type="text"
-        id="contentOrder"
-        name="contentOrder"
-        required
-        defaultValue={formData.contentOrder}
-      />
-      <InfoIcon
-        className="ml-2"
-        aria-describedby={id}
-        variant="contained"
-        onClick={handleClick}
-      />
+          <input
+            onChange={handleInputChange}
+            className=""
+            type="text"
+            id="contentOrder"
+            name="contentOrder"
+            required
+            defaultValue={formData.contentOrder}
+          />
+          <InfoIcon
+            className="ml-2"
+            aria-describedby={id}
+            variant="contained"
+            onClick={handleClick}
+          />
 
-      <Popover
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-      >
-        <Typography sx={{ p: 2 }}>
-          <p>
-            The numerical order that content is displayed in the app, similar to
-            book chapters.
-          </p>{" "}
-          <p>
-            For example, these numberings would be displayed in order from
-            smallest to largest:
-          </p>{" "}
-          <p>1.0, 1.1, 1.2, 2.0, 3.0, 3.1, etc.</p>
-        </Typography>
-      </Popover>
-      <label
-        className="block text-white-700 text-lg font-bold mb-2"
-        htmlFor="due"
-      >
-        Due Date/Time
-      </label>
-      <input
-        onChange={handleInputChange}
-        className=""
-        type="datetime-local"
-        name="due"
-        defaultValue={formData.due}
-      />
-      <label
-        className="block text-white-700 text-lg font-bold mb-2"
-        htmlFor="open"
-      >
-        App Users can see this content at the following date and time:
-      </label>
-      <input
-        onChange={handleInputChange}
-        className=""
-        type="datetime-local"
-        name="open"
-        defaultValue={formData.open}
-      />
-      <label
-        className="block text-white-700 text-lg font-bold mb-2"
-        htmlFor="close"
-      >
-        At the following date and time, app users will no longer have access to
-        this content:
-      </label>
-      <input
-        onChange={handleInputChange}
-        className=""
-        type="datetime-local"
-        name="close"
-        defaultValue={formData.close}
-      />
-      <label
-        className="block text-white-700 text-lg font-bold mb-2"
-        htmlFor="textContent"
-      >
-        Text Content
-      </label>
-
-      {quill}
-      <div className="mt-10">
-        <Button variant="contained" type="submit" className="btn">
-          Submit
-        </Button>
-      </div>
-    </form>
+          <Popover
+            id={id}
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+          >
+            <Typography sx={{ p: 2 }}>
+              <p>
+                The numerical order that content is displayed in the app, similar to
+                book chapters.
+              </p>{" "}
+              <p>
+                For example, these numberings would be displayed in order from
+                smallest to largest:
+              </p>{" "}
+              <p>1.0, 1.1, 1.2, 2.0, 3.0, 3.1, etc.</p>
+            </Typography>
+          </Popover>
+          <label
+            className="block text-white-700 text-lg font-bold mb-2"
+            htmlFor="due"
+          >
+            Due Date/Time
+          </label>
+          <input
+            onChange={handleInputChange}
+            className=""
+            type="datetime-local"
+            name="due"
+            defaultValue={formData.due}
+          />
+          <label
+            className="block text-white-700 text-lg font-bold mb-2"
+            htmlFor="open"
+          >
+            App Users can see this content at the following date and time:
+          </label>
+          <input
+            onChange={handleInputChange}
+            className=""
+            type="datetime-local"
+            name="open"
+            defaultValue={formData.open}
+          />
+          <label
+            className="block text-white-700 text-lg font-bold mb-2"
+            htmlFor="close"
+          >
+            At the following date and time, app users will no longer have access to
+            this content:
+          </label>
+          <input
+            onChange={handleInputChange}
+            className=""
+            type="datetime-local"
+            name="close"
+            defaultValue={formData.close}
+          />
+          <label
+            className="block text-white-700 text-lg font-bold mb-2"
+            htmlFor="textContent"
+          >
+            Text Content
+          </label>
+          {quill}
+          <div className="mt-10">
+            <Button variant="contained" type="submit" className="btn">
+              Submit
+            </Button>
+          </div>
+        </form>
+      )}
+    </>
   );
 };
 
